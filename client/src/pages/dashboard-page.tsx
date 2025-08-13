@@ -522,7 +522,6 @@ export default function DashboardPage() {
       </div>
 
       {/* Modals */}
-      {console.log('About to render ProjectCreationModal with open:', showProjectCreationModal, 'typeof:', typeof showProjectCreationModal)}
       <ProjectCreationModal
         open={showProjectCreationModal}
         onOpenChange={setShowProjectCreationModal}
