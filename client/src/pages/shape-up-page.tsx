@@ -1,23 +1,107 @@
 import { useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { useParams } from 'wouter';
+import { useParams, useLocation } from 'wouter';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Plus, TrendingUp, Clock, Users, Target } from 'lucide-react';
+import { Plus, TrendingUp, Clock, Users, Target, ArrowLeft } from 'lucide-react';
 import { HillChart } from '@/components/shape-up/hill-chart';
 import { BettingTable } from '@/components/shape-up/betting-table';
 import { PitchCreationModal } from '@/components/shape-up/pitch-creation-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
 import { getQueryFn, apiRequest, queryClient } from '@/lib/queryClient';
+import { Project } from '@shared/schema';
 
 export default function ShapeUpPage() {
-  const { projectId } = useParams();
+  const params = useParams();
+  const projectId = params.projectId;
+  const [, setLocation] = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
   const [showPitchModal, setShowPitchModal] = useState(false);
+
+  // Fetch all projects for project selection if no projectId
+  const { data: projects = [], isLoading: projectsLoading } = useQuery<Project[]>({
+    queryKey: ["/api/projects"],
+    enabled: !projectId,
+  });
+
+  // If no projectId, show project selection
+  if (!projectId) {
+    if (projectsLoading) {
+      return (
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-slate-600">Loading projects...</p>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="min-h-screen bg-slate-50">
+        <div className="bg-white shadow-sm border-b">
+          <div className="max-w-6xl mx-auto px-6 py-4">
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="ghost" 
+                onClick={() => setLocation('/dashboard')}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboard
+              </Button>
+              <h1 className="text-2xl font-bold text-slate-900">Shape Up Projects</h1>
+            </div>
+          </div>
+        </div>
+        
+        <div className="max-w-6xl mx-auto px-6 py-8">
+          {projects.length === 0 ? (
+            <div className="text-center py-12">
+              <Target className="h-16 w-16 text-slate-300 mx-auto mb-4" />
+              <h2 className="text-xl font-semibold text-slate-700 mb-2">No Projects Available</h2>
+              <p className="text-slate-500 mb-6">Create a project first to access Shape Up methodology features.</p>
+              <Button onClick={() => setLocation('/dashboard')}>
+                Go to Dashboard
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <h2 className="text-lg font-semibold text-slate-700">Select a project to manage with Shape Up:</h2>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {projects.map((project) => (
+                  <Card key={project.id} className="cursor-pointer hover:shadow-md transition-shadow"
+                        onClick={() => setLocation(`/shape-up/${project.id}`)}>
+                    <CardHeader>
+                      <CardTitle className="text-lg">{project.name}</CardTitle>
+                      <div className="flex items-center gap-2">
+                        <Badge variant={project.status === 'active' ? 'default' : 'secondary'}>
+                          {project.status}
+                        </Badge>
+                        <Badge variant="outline">{project.strategy}</Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-slate-600 mb-2">
+                        Cycle {project.currentCycle || 1} - {project.cyclePhase || 'planning'}
+                      </p>
+                      <Button size="sm" className="w-full">
+                        Manage with Shape Up →
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   // Fetch project details
   const { data: project, isLoading: projectLoading } = useQuery({

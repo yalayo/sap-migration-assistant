@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLocation } from "wouter";
 import { Navbar } from "@/components/layout/navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,12 +26,13 @@ import {
 import { Project, Pitch, WorkPackage } from "@shared/schema";
 
 export default function DashboardPage() {
+  const [, setLocation] = useLocation();
   const [showPitchModal, setShowPitchModal] = useState(false);
   const [showProjectSettings, setShowProjectSettings] = useState(false);
   const [showProjectCreationModal, setShowProjectCreationModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"projects" | "shape-up" | "overview" | "scopes" | "pitches">("projects");
+  const [activeTab, setActiveTab] = useState<"projects" | "overview" | "scopes" | "pitches">("projects");
 
   // Debug logging
   console.log('Dashboard render - showProjectCreationModal:', showProjectCreationModal);
@@ -114,7 +116,6 @@ export default function DashboardPage() {
           <nav className="-mb-px flex space-x-8">
             {[
               { id: "projects", label: "Projects", icon: Target },
-              { id: "shape-up", label: "Shape Up", icon: Lightbulb },
               ...(activeProject ? [
                 { id: "overview", label: "Overview", icon: TrendingUp },
                 { id: "scopes", label: "Scopes", icon: Target },
@@ -136,6 +137,15 @@ export default function DashboardPage() {
                 {tab.label}
               </button>
             ))}
+            
+            {/* Shape Up Navigation Button */}
+            <button
+              onClick={() => setLocation('/shape-up')}
+              className="group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+            >
+              <Lightbulb className="mr-2 h-5 w-5 text-slate-400 group-hover:text-slate-500" />
+              Shape Up
+            </button>
           </nav>
         </div>
 
@@ -236,143 +246,7 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Shape Up Tab */}
-        {activeTab === "shape-up" && (
-          <div className="space-y-6">
-            <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg p-6 border border-purple-200">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h2 className="text-xl font-semibold text-slate-900 mb-2">Shape Up Methodology</h2>
-                  <p className="text-slate-600">
-                    Create pitches, manage work packages, and track progress through interactive hill charts.
-                  </p>
-                </div>
-                <div className="bg-purple-100 p-3 rounded-lg">
-                  <Lightbulb className="h-8 w-8 text-purple-600" />
-                </div>
-              </div>
-              
-              <div className="grid md:grid-cols-2 gap-4 text-sm">
-                <div className="flex items-center text-slate-700">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
-                  6-week cycles with fixed time, variable scope
-                </div>
-                <div className="flex items-center text-slate-700">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-                  Problem-first approach to solution shaping
-                </div>
-                <div className="flex items-center text-slate-700">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-                  Hill charts for transparent progress tracking
-                </div>
-                <div className="flex items-center text-slate-700">
-                  <div className="w-2 h-2 bg-orange-500 rounded-full mr-2"></div>
-                  Betting table for pitch prioritization
-                </div>
-              </div>
-            </div>
 
-            {projects.length === 0 ? (
-              <Card>
-                <CardContent className="text-center py-12">
-                  <div className="mb-4">
-                    <Target className="h-16 w-16 text-slate-300 mx-auto mb-4" />
-                    <h3 className="text-lg font-medium text-slate-900 mb-2">Start Your First Project</h3>
-                    <p className="text-slate-600 mb-6 max-w-md mx-auto">
-                      Create a migration project to begin shaping pitches and managing work packages with Shape Up methodology.
-                    </p>
-                  </div>
-                  <Button 
-                    onClick={() => setShowProjectCreationModal(true)}
-                    className="bg-purple-600 hover:bg-purple-700 text-white"
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Create First Project
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center">
-                      <Lightbulb className="mr-2 h-5 w-5 text-purple-600" />
-                      Available Projects for Shape Up
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid gap-4">
-                      {projects.map((project) => (
-                        <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-slate-50">
-                          <div>
-                            <h4 className="font-medium text-slate-900">{project.name}</h4>
-                            <p className="text-sm text-slate-600">
-                              {project.strategy} strategy • Cycle #{project.currentCycle || 1} ({project.cyclePhase || "planning"})
-                            </p>
-                          </div>
-                          <Button
-                            variant="outline"
-                            onClick={() => window.location.href = `/shape-up/${project.id}`}
-                            className="bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100"
-                          >
-                            <Target className="mr-2 h-4 w-4" />
-                            Manage Shape Up
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center">
-                      <Clock className="mr-2 h-5 w-5 text-blue-600" />
-                      Shape Up Quick Start
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid md:grid-cols-3 gap-4">
-                      <div className="p-4 bg-blue-50 rounded-lg">
-                        <div className="flex items-center mb-2">
-                          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                            <span className="text-blue-600 font-semibold text-sm">1</span>
-                          </div>
-                          <h4 className="font-medium text-slate-900">Shape Pitches</h4>
-                        </div>
-                        <p className="text-sm text-slate-600">
-                          Define problems, propose solutions, set time appetite and business value.
-                        </p>
-                      </div>
-                      <div className="p-4 bg-green-50 rounded-lg">
-                        <div className="flex items-center mb-2">
-                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                            <span className="text-green-600 font-semibold text-sm">2</span>
-                          </div>
-                          <h4 className="font-medium text-slate-900">Betting Table</h4>
-                        </div>
-                        <p className="text-sm text-slate-600">
-                          Review shaped pitches and decide which ones to commit to for the next cycle.
-                        </p>
-                      </div>
-                      <div className="p-4 bg-purple-50 rounded-lg">
-                        <div className="flex items-center mb-2">
-                          <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
-                            <span className="text-purple-600 font-semibold text-sm">3</span>
-                          </div>
-                          <h4 className="font-medium text-slate-900">Track Progress</h4>
-                        </div>
-                        <p className="text-sm text-slate-600">
-                          Use hill charts to visualize work packages moving from problem-solving to execution.
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Project Stats - shown on overview tab */}
         {activeTab === "overview" && activeProject && (
