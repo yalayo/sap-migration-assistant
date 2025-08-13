@@ -43,7 +43,13 @@ interface AssessmentData {
 
 export function AssessmentForm() {
   const [currentStep, setCurrentStep] = useState(1);
-  const [assessmentData, setAssessmentData] = useState<AssessmentData>({});
+  const [assessmentData, setAssessmentData] = useState<AssessmentData>({
+    // Set default values for radio button groups
+    landscape: "multiple",
+    outcome: "preserve", 
+    dataQuality: "good",
+    changeAppetite: "moderate"
+  });
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
