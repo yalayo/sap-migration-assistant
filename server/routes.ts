@@ -4,6 +4,33 @@ import { setupAuth } from "./auth";
 import { storage } from "./storage";
 import { insertAssessmentSchema, insertProjectSchema, insertPitchSchema, insertWorkPackageSchema, insertScopeSchema } from "@shared/schema";
 import { z } from "zod";
+import { hashPassword } from "./auth";
+
+// Generate a secure temporary password
+function generateSecurePassword(): string {
+  const length = 12;
+  const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*";
+  let password = "";
+  
+  // Ensure at least one character from each type
+  const lowercase = "abcdefghijklmnopqrstuvwxyz";
+  const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const numbers = "0123456789";
+  const symbols = "!@#$%^&*";
+  
+  password += lowercase[Math.floor(Math.random() * lowercase.length)];
+  password += uppercase[Math.floor(Math.random() * uppercase.length)];
+  password += numbers[Math.floor(Math.random() * numbers.length)];
+  password += symbols[Math.floor(Math.random() * symbols.length)];
+  
+  // Fill the rest randomly
+  for (let i = 4; i < length; i++) {
+    password += charset[Math.floor(Math.random() * charset.length)];
+  }
+  
+  // Shuffle the password
+  return password.split('').sort(() => 0.5 - Math.random()).join('');
+}
 
 export function registerRoutes(app: Express): Server {
   setupAuth(app);
@@ -34,10 +61,23 @@ export function registerRoutes(app: Express): Server {
       // Check if user already exists with this email
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
-        return res.status(400).json({ 
-          error: "An account with this email already exists. Please log in to continue." 
+        // User exists, create assessment for them and auto-login
+        const assessment = await storage.createAssessment(existingUser.id, validatedData);
+        
+        // Auto-login the existing user
+        req.login(existingUser, (err) => {
+          if (err) return next(err);
+          return res.status(201).json({ 
+            assessment, 
+            user: existingUser,
+            message: "Assessment completed and logged in successfully"
+          });
         });
+        return;
       }
+      
+      // Generate a secure temporary password
+      const tempPassword = generateSecurePassword();
       
       // Create new user account
       const newUser = await storage.createUser({
@@ -45,7 +85,7 @@ export function registerRoutes(app: Express): Server {
         username: email, // Use email as username for simplicity
         fullName,
         companyName,
-        password: "temp-password-needs-reset" // User will need to set password later
+        password: await hashPassword(tempPassword) // Hash the temporary password
       });
       
       // Create assessment for the new user
@@ -54,7 +94,13 @@ export function registerRoutes(app: Express): Server {
       // Log them in automatically
       req.login(newUser, (err) => {
         if (err) return next(err);
-        res.status(201).json({ user: newUser, assessment });
+        res.status(201).json({ 
+          user: newUser, 
+          assessment,
+          tempPassword, // Include the temporary password in response
+          isNewAccount: true,
+          message: "Account created successfully. Please save your login credentials."
+        });
       });
       
     } catch (error) {

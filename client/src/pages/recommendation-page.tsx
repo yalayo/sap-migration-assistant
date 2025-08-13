@@ -1,15 +1,30 @@
+import { useState, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Navbar } from "@/components/layout/navbar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Clock, Target, Users, Route, Sprout, Recycle, ArrowRight } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CheckCircle, Clock, Target, Users, Route, Sprout, Recycle, ArrowRight, Key, Copy, User, Building } from "lucide-react";
 import { Assessment } from "@shared/schema";
+import { useToast } from "@/hooks/use-toast";
 
 export default function RecommendationPage() {
   const { assessmentId } = useParams();
   const [, setLocation] = useLocation();
+  const [credentials, setCredentials] = useState<any>(null);
+  const { toast } = useToast();
+
+  // Check for new account credentials
+  useEffect(() => {
+    const storedCredentials = sessionStorage.getItem('newAccountCredentials');
+    if (storedCredentials) {
+      setCredentials(JSON.parse(storedCredentials));
+      // Clear from sessionStorage after displaying
+      sessionStorage.removeItem('newAccountCredentials');
+    }
+  }, []);
 
   const { data: assessment, isLoading } = useQuery<Assessment>({
     queryKey: ["/api/assessments", assessmentId],
@@ -103,6 +118,61 @@ export default function RecommendationPage() {
           <h1 className="text-3xl font-bold text-slate-900 mb-4">Your Migration Strategy Recommendation</h1>
           <p className="text-lg text-slate-600">Based on your assessment, here's our personalized recommendation for your S/4HANA migration</p>
         </div>
+
+        {/* New Account Credentials */}
+        {credentials && (
+          <Alert className="mb-8 border-blue-200 bg-blue-50">
+            <Key className="h-4 w-4" />
+            <AlertDescription>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-blue-900">Account Created Successfully!</h3>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(`Email: ${credentials.email}\nPassword: ${credentials.password}`);
+                      toast({
+                        title: "Credentials Copied",
+                        description: "Login credentials copied to clipboard",
+                      });
+                    }}
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    Copy Credentials
+                  </Button>
+                </div>
+                
+                <div className="grid md:grid-cols-2 gap-4 text-sm">
+                  <div className="space-y-2">
+                    <div className="flex items-center">
+                      <User className="h-4 w-4 mr-2 text-blue-600" />
+                      <span className="font-medium">Welcome, {credentials.fullName}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <Building className="h-4 w-4 mr-2 text-blue-600" />
+                      <span>{credentials.companyName}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <div>
+                      <span className="font-medium text-blue-900">Email:</span> {credentials.email}
+                    </div>
+                    <div>
+                      <span className="font-medium text-blue-900">Temporary Password:</span> 
+                      <code className="ml-2 px-2 py-1 bg-blue-100 rounded text-blue-800">{credentials.password}</code>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="text-xs text-blue-700 bg-blue-100 p-3 rounded">
+                  <strong>Important:</strong> Please save these credentials securely. You can use them to log in and access your migration dashboard, create projects, and track your S/4HANA transformation progress.
+                </div>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Recommended Strategy Card */}
         <Card className="mb-8 shadow-lg">

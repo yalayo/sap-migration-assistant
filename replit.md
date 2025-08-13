@@ -2,9 +2,17 @@
 
 ## Overview
 
-This is a full-stack web application that guides SAP ECC customers through their S/4HANA migration journey using Shape Up methodology principles. The application provides assessment tools, personalized migration strategy recommendations, and project management capabilities with visual progress tracking through hill charts.
+This is a comprehensive full-stack web application that guides SAP ECC customers through their S/4HANA migration journey using Shape Up methodology principles. The application provides assessment tools, personalized migration strategy recommendations, and project management capabilities with visual progress tracking through hill charts.
 
 The system helps organizations evaluate their current SAP landscape, receive tailored migration recommendations (Greenfield, Brownfield, or Hybrid approaches), and manage their transformation projects using fixed-time, variable-scope cycles inspired by Shape Up methodology.
+
+**Key Features:**
+- Anonymous assessment completion with automatic account creation
+- Secure password generation and credential management for potential customers
+- Shape Up cycle configuration with customizable build/cooldown durations
+- Project scope management with detailed boundaries and success criteria
+- Visual progress tracking through hill charts and betting tables
+- Comprehensive dashboard with tabbed navigation for project oversight
 
 ## User Preferences
 

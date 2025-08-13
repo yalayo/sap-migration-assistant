@@ -62,12 +62,29 @@ export function AssessmentForm() {
       const assessment = result.assessment || result;
       const assessmentId = assessment.id;
       
-      toast({
-        title: "Assessment Complete!",
-        description: result.user ? 
-          "Account created successfully! Your personalized recommendation is ready." :
-          "Your personalized recommendation is ready.",
-      });
+      // Show account creation info if this is a new account
+      if (result.isNewAccount && result.tempPassword) {
+        toast({
+          title: "Account Created Successfully!",
+          description: `Your account has been created. Login: ${result.user.email} | Password: ${result.tempPassword}`,
+          duration: 10000, // Show for 10 seconds
+        });
+        
+        // Store credentials temporarily for display on recommendation page
+        sessionStorage.setItem('newAccountCredentials', JSON.stringify({
+          email: result.user.email,
+          password: result.tempPassword,
+          fullName: result.user.fullName,
+          companyName: result.user.companyName
+        }));
+      } else {
+        toast({
+          title: "Assessment Complete!",
+          description: result.user ? 
+            "Your personalized recommendation is ready." :
+            "Your personalized recommendation is ready.",
+        });
+      }
       
       setLocation(`/recommendation/${assessmentId}`);
     },
