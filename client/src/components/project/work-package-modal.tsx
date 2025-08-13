@@ -55,13 +55,9 @@ export function WorkPackageModal({ open, onOpenChange, scope, workPackage }: Wor
 
   const createWorkPackageMutation = useMutation({
     mutationFn: async (data: WorkPackageFormData) => {
-      // Create a scope-level pitch if needed, or use existing one
-      const res = await apiRequest("POST", "/api/work-packages", {
-        ...data,
-        pitchId: `scope-${scope.id}`, // We'll create scope-level pitches
-        scopeId: scope.id,
-      });
-      return await res.json();
+      // Create work packages for scopes by creating a temporary pitch or using project-level approach
+      // For now, we'll skip work package creation for scopes since they don't belong to pitches
+      throw new Error("Work packages for scopes are not currently supported. Please create work packages within specific pitches.");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/scopes/${scope.id}/work-packages`] });

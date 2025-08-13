@@ -54,12 +54,12 @@ export function ScopeWorkPackagesSection({ scope }: ScopeWorkPackagesSectionProp
                         No work packages defined for this scope yet.
                       </p>
                       <Button 
-                        onClick={() => setShowWorkPackageModal(true)}
+                        onClick={() => alert("Work packages are created within specific pitches. Go to the Hill Charts tab and create work packages for active pitches.")}
                         size="sm"
-                        className="bg-blue-600 hover:bg-blue-700"
+                        variant="outline"
                       >
                         <Plus className="h-3 w-3 mr-2" />
-                        Add Work Package
+                        Work packages are created in pitches
                       </Button>
                     </div>
                   </div>
@@ -75,12 +75,12 @@ export function ScopeWorkPackagesSection({ scope }: ScopeWorkPackagesSectionProp
                         Progress Hill Chart
                       </CardTitle>
                       <Button 
-                        onClick={() => setShowWorkPackageModal(true)}
+                        onClick={() => alert("Work packages are created within specific pitches. Go to the Hill Charts tab and create work packages for active pitches.")}
                         size="sm"
                         variant="outline"
                       >
                         <Plus className="h-3 w-3 mr-2" />
-                        Add Package
+                        Work packages are created in pitches
                       </Button>
                     </div>
                   </CardHeader>
