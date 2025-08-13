@@ -9,6 +9,8 @@ export const users = pgTable("users", {
   username: text("username").notNull().unique(),
   email: text("email").notNull().unique(),
   password: text("password").notNull(),
+  fullName: text("full_name"),
+  companyName: text("company_name"),
   role: text("role").notNull().default("user"),
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
 });
@@ -107,6 +109,8 @@ export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   email: true,
   password: true,
+  fullName: true,
+  companyName: true,
 });
 
 export const insertAssessmentSchema = createInsertSchema(assessments).omit({

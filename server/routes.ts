@@ -8,15 +8,55 @@ import { z } from "zod";
 export function registerRoutes(app: Express): Server {
   setupAuth(app);
 
-  // Assessment routes
+  // Assessment routes - allow anonymous submissions
   app.post("/api/assessments", async (req, res, next) => {
     try {
-      if (!req.isAuthenticated()) return res.sendStatus(401);
-      
       const validatedData = insertAssessmentSchema.parse(req.body);
-      const assessment = await storage.createAssessment(req.user!.id, validatedData);
       
-      res.status(201).json(assessment);
+      // If user is authenticated, create assessment for them
+      if (req.isAuthenticated()) {
+        const assessment = await storage.createAssessment(req.user!.id, validatedData);
+        return res.status(201).json(assessment);
+      }
+      
+      // For anonymous users, extract user info from assessment responses
+      const responses = validatedData.responses as any;
+      const email = responses?.contact?.email;
+      const companyName = responses?.contact?.companyName;
+      const fullName = responses?.contact?.fullName;
+      
+      if (!email || !companyName || !fullName) {
+        return res.status(400).json({ 
+          error: "Contact information is required to complete the assessment" 
+        });
+      }
+      
+      // Check if user already exists with this email
+      const existingUser = await storage.getUserByEmail(email);
+      if (existingUser) {
+        return res.status(400).json({ 
+          error: "An account with this email already exists. Please log in to continue." 
+        });
+      }
+      
+      // Create new user account
+      const newUser = await storage.createUser({
+        email,
+        username: email, // Use email as username for simplicity
+        fullName,
+        companyName,
+        password: "temp-password-needs-reset" // User will need to set password later
+      });
+      
+      // Create assessment for the new user
+      const assessment = await storage.createAssessment(newUser.id, validatedData);
+      
+      // Log them in automatically
+      req.login(newUser, (err) => {
+        if (err) return next(err);
+        res.status(201).json({ user: newUser, assessment });
+      });
+      
     } catch (error) {
       next(error);
     }

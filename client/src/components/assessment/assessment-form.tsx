@@ -15,7 +15,7 @@ import { assessmentEngine } from "@/lib/assessment-engine";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
-const TOTAL_STEPS = 6;
+const TOTAL_STEPS = 7; // Added contact information step
 
 interface AssessmentData {
   landscape?: string;
@@ -31,6 +31,14 @@ interface AssessmentData {
   orgSize?: string;
   industry?: string;
   regions?: string[];
+  // Contact information
+  contact?: {
+    fullName?: string;
+    email?: string;
+    companyName?: string;
+    jobTitle?: string;
+    phone?: string;
+  };
 }
 
 export function AssessmentForm() {
@@ -46,13 +54,22 @@ export function AssessmentForm() {
       const res = await apiRequest("POST", "/api/assessments", data);
       return await res.json();
     },
-    onSuccess: (assessment) => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ["/api/assessments"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      
+      // Handle both authenticated and anonymous submissions
+      const assessment = result.assessment || result;
+      const assessmentId = assessment.id;
+      
       toast({
         title: "Assessment Complete!",
-        description: "Your personalized recommendation is ready.",
+        description: result.user ? 
+          "Account created successfully! Your personalized recommendation is ready." :
+          "Your personalized recommendation is ready.",
       });
-      setLocation(`/recommendation/${assessment.id}`);
+      
+      setLocation(`/recommendation/${assessmentId}`);
     },
     onError: (error: Error) => {
       toast({
@@ -427,6 +444,109 @@ export function AssessmentForm() {
                       ))}
                     </div>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* Step 7: Contact Information */}
+            {currentStep === 7 && (
+              <div className="space-y-6">
+                <div className="text-center">
+                  <h2 className="text-2xl font-bold text-slate-900 mb-3">Your Contact Information</h2>
+                  <p className="text-slate-600">
+                    To receive your personalized S/4HANA migration recommendations and create your account, 
+                    please provide your contact details.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label className="text-base font-medium text-slate-700 mb-3 block">
+                      Full Name <span className="text-red-500">*</span>
+                    </Label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter your full name"
+                      value={assessmentData.contact?.fullName || ""}
+                      onChange={(e) => updateAssessmentData("contact", { 
+                        ...assessmentData.contact, 
+                        fullName: e.target.value 
+                      })}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label className="text-base font-medium text-slate-700 mb-3 block">
+                      Email Address <span className="text-red-500">*</span>
+                    </Label>
+                    <input
+                      type="email"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter your email"
+                      value={assessmentData.contact?.email || ""}
+                      onChange={(e) => updateAssessmentData("contact", { 
+                        ...assessmentData.contact, 
+                        email: e.target.value 
+                      })}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label className="text-base font-medium text-slate-700 mb-3 block">
+                      Company Name <span className="text-red-500">*</span>
+                    </Label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter your company name"
+                      value={assessmentData.contact?.companyName || ""}
+                      onChange={(e) => updateAssessmentData("contact", { 
+                        ...assessmentData.contact, 
+                        companyName: e.target.value 
+                      })}
+                    />
+                  </div>
+                  
+                  <div>
+                    <Label className="text-base font-medium text-slate-700 mb-3 block">
+                      Job Title
+                    </Label>
+                    <input
+                      type="text"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter your job title"
+                      value={assessmentData.contact?.jobTitle || ""}
+                      onChange={(e) => updateAssessmentData("contact", { 
+                        ...assessmentData.contact, 
+                        jobTitle: e.target.value 
+                      })}
+                    />
+                  </div>
+                  
+                  <div className="md:col-span-2">
+                    <Label className="text-base font-medium text-slate-700 mb-3 block">
+                      Phone Number
+                    </Label>
+                    <input
+                      type="tel"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Enter your phone number"
+                      value={assessmentData.contact?.phone || ""}
+                      onChange={(e) => updateAssessmentData("contact", { 
+                        ...assessmentData.contact, 
+                        phone: e.target.value 
+                      })}
+                    />
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <p className="text-sm text-blue-800">
+                    <strong>Privacy Note:</strong> Your information will be used to create your account and 
+                    provide personalized migration recommendations. We respect your privacy and will not 
+                    share your information with third parties.
+                  </p>
                 </div>
               </div>
             )}
