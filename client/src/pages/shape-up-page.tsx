@@ -366,6 +366,45 @@ export default function ShapeUpPage() {
           {/* Hill Charts Tab */}
           <TabsContent value="hill-charts">
             <div className="space-y-6">
+              {/* Project Scopes Section */}
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg">Project Scopes</CardTitle>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const name = prompt('Enter scope name:');
+                        if (name) {
+                          handleAddScope(name);
+                        }
+                      }}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Project Scope
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {scopes.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {scopes.map((scope: any) => (
+                        <div key={scope.id} className="p-4 border rounded-lg">
+                          <h4 className="font-medium">{scope.name}</h4>
+                          {scope.description && (
+                            <p className="text-sm text-slate-600 mt-1">{scope.description}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-slate-500 text-center py-4">No scopes created yet</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Active Pitches Section */}
               {activePitches.length > 0 ? (
                 activePitches.map((pitch: any) => {
                   const pitchWorkPackages = workPackages.filter((wp: any) => wp.pitchId === pitch.id);
@@ -375,9 +414,8 @@ export default function ShapeUpPage() {
                       workPackages={pitchWorkPackages}
                       onUpdatePosition={handleUpdateWorkPackagePosition}
                       onAddWorkPackage={handleAddWorkPackage(pitch.id)}
-                      onAddScope={handleAddScope}
                       pitchTitle={pitch.title}
-                      showScopeCreation={true}
+                      showScopeCreation={false}
                     />
                   );
                 })
