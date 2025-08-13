@@ -277,6 +277,7 @@ export function PitchModal({ isOpen, onClose, projectId }: PitchModalProps) {
                   <FormControl>
                     <Textarea
                       {...field}
+                      value={field.value || ""}
                       rows={3}
                       placeholder="Capture potential complexities (e.g., 'complex legacy custom code', 'poor data quality in source system', 'unclear integration requirements')"
                       className="resize-none"
