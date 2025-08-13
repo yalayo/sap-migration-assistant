@@ -70,22 +70,13 @@ export default function DashboardPage() {
           <div className="text-center">
             <h2 className="text-2xl font-bold text-slate-900 mb-4">Welcome to Your Migration Hub</h2>
             <p className="text-slate-600 mb-8">Start your S/4HANA transformation journey by creating your first migration project</p>
-            <div className="space-y-4">
-              <Button 
-                onClick={() => window.location.href = "/assessment"}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                Complete Assessment & Create Project
-              </Button>
-              <div className="text-sm text-slate-500">
-                or <button 
-                  onClick={() => setShowProjectCreationModal(true)}
-                  className="text-blue-600 hover:text-blue-700 underline"
-                >
-                  create a project manually
-                </button>
-              </div>
-            </div>
+            <Button 
+              onClick={() => setShowProjectCreationModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Create Your First Project
+            </Button>
           </div>
         </div>
       </div>
