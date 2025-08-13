@@ -67,30 +67,7 @@ export default function DashboardPage() {
     );
   }
 
-  // If no projects exist, show welcome screen with project creation
-  if (projects.length === 0) {
-    return (
-      <div className="min-h-screen bg-slate-50">
-        <Navbar />
-        <div className="flex items-center justify-center py-16">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-slate-900 mb-4">Welcome to Your Migration Hub</h2>
-            <p className="text-slate-600 mb-8">Start your S/4HANA transformation journey by creating your first migration project</p>
-            <Button 
-              onClick={() => {
-                console.log('Button clicked, setting modal to true');
-                setShowProjectCreationModal(true);
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              Create Your First Project
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Always show dashboard with tabs - Shape Up tab will handle empty state
 
   const completedPitches = pitches.filter(p => p.status === "completed").length;
   const activePitches = pitches.filter(p => p.status === "active").length;
