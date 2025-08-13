@@ -23,10 +23,13 @@ import {
 interface ExportModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  project: Project;
+  project: Project | null;
 }
 
 export function ExportModal({ open, onOpenChange, project }: ExportModalProps) {
+  if (!project) {
+    return null;
+  }
   const { toast } = useToast();
   const { user } = useAuth();
   const [isExporting, setIsExporting] = useState(false);

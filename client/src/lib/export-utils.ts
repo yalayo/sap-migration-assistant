@@ -11,7 +11,7 @@ export interface ProjectReport {
 }
 
 export interface ExportOptions {
-  format: 'pdf' | 'csv' | 'excel' | 'json';
+  format: 'pdf' | 'csv' | 'excel' | 'json' | 'html';
   includeDetails: boolean;
   includePitches: boolean;
   includeWorkPackages: boolean;

@@ -30,7 +30,7 @@ export default function DashboardPage() {
   const [showProjectCreationModal, setShowProjectCreationModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<"projects" | "overview" | "scopes" | "pitches">("projects");
+  const [activeTab, setActiveTab] = useState<"projects" | "shape-up" | "overview" | "scopes" | "pitches">("projects");
 
   // Debug logging
   console.log('Dashboard render - showProjectCreationModal:', showProjectCreationModal);
@@ -669,7 +669,7 @@ export default function DashboardPage() {
           <ExportModal
             open={showExportModal}
             onOpenChange={setShowExportModal}
-            project={selectedProject}
+            project={selectedProject || activeProject}
           />
         </>
       )}
