@@ -30,23 +30,11 @@ export function Navbar() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" className="text-slate-600 hover:text-slate-900">
-              Documentation
-            </Button>
-            <Button variant="ghost" className="text-slate-600 hover:text-slate-900">
-              Support
-            </Button>
             <div className="border-l border-slate-200 pl-4">
               {user ? (
                 <div className="flex items-center space-x-2">
                   <span className="text-sm text-slate-600">Welcome, {user.username}</span>
-                  <Button 
-                    onClick={handleAuthAction}
-                    variant="default"
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                  >
-                    Dashboard
-                  </Button>
+                  
                   {(user.role === 'manager' || user.role === 'admin') && (
                     <Button 
                       onClick={() => setLocation("/management")}
