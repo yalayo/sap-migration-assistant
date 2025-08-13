@@ -522,17 +522,10 @@ export default function DashboardPage() {
       </div>
 
       {/* Modals */}
-      {console.log('About to render modal, state:', showProjectCreationModal)}
-      {showProjectCreationModal && (
-        <div>
-          {console.log('Modal should render now')}
-          <ProjectCreationModal
-            open={showProjectCreationModal}
-            onOpenChange={setShowProjectCreationModal}
-          />
-        </div>
-      )}
-      {!showProjectCreationModal && console.log('Modal state is false, not rendering')}
+      <ProjectCreationModal
+        open={showProjectCreationModal}
+        onOpenChange={setShowProjectCreationModal}
+      />
       
       {activeProject && (
         <>
