@@ -11,6 +11,7 @@ import AssessmentPage from "@/pages/assessment-page";
 import RecommendationPage from "@/pages/recommendation-page";
 import ResourcePlanningPage from "@/pages/resource-planning-page";
 import DashboardPage from "@/pages/dashboard-page";
+import ManagementDashboardPage from "@/pages/management-dashboard-page";
 import { ProtectedRoute } from "./lib/protected-route";
 
 function Router() {
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/recommendation/:assessmentId" component={RecommendationPage} />
       <Route path="/resource-planning/:strategy" component={ResourcePlanningPage} />
       <ProtectedRoute path="/dashboard" component={DashboardPage} />
+      <ProtectedRoute path="/management" component={ManagementDashboardPage} />
       <Route component={NotFound} />
     </Switch>
   );

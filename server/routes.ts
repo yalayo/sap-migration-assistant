@@ -458,6 +458,52 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Management routes (for manager/admin users)
+  app.get("/api/management/assessments", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) return res.sendStatus(401);
+      
+      if (req.user!.role !== 'manager' && req.user!.role !== 'admin') {
+        return res.sendStatus(403);
+      }
+      
+      const assessmentsWithUsers = await storage.getAllAssessmentsWithUsers();
+      res.json(assessmentsWithUsers);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get("/api/management/projects", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) return res.sendStatus(401);
+      
+      if (req.user!.role !== 'manager' && req.user!.role !== 'admin') {
+        return res.sendStatus(403);
+      }
+      
+      const projectsWithUsers = await storage.getAllProjectsWithUsers();
+      res.json(projectsWithUsers);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get("/api/management/users", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) return res.sendStatus(401);
+      
+      if (req.user!.role !== 'manager' && req.user!.role !== 'admin') {
+        return res.sendStatus(403);
+      }
+      
+      const allUsers = await storage.getAllUsers();
+      res.json(allUsers);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -47,6 +47,15 @@ export function Navbar() {
                   >
                     Dashboard
                   </Button>
+                  {(user.role === 'manager' || user.role === 'admin') && (
+                    <Button 
+                      onClick={() => setLocation("/management")}
+                      variant="outline"
+                      className="border-orange-300 text-orange-600 hover:bg-orange-50"
+                    >
+                      Management
+                    </Button>
+                  )}
                   <Button 
                     onClick={handleLogout}
                     variant="outline"

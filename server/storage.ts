@@ -71,6 +71,11 @@ export interface IStorage {
   
   // Assessment helper methods
   getProjectAssessment(projectId: string): Promise<Assessment | undefined>;
+  
+  // Management methods
+  getAllUsers(): Promise<User[]>;
+  getAllAssessmentsWithUsers(): Promise<any[]>;
+  getAllProjectsWithUsers(): Promise<any[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -279,14 +284,74 @@ export class DatabaseStorage implements IStorage {
       userId: assessments.userId,
       responses: assessments.responses,
       recommendation: assessments.recommendation,
+      recommendedStrategy: assessments.recommendedStrategy,
+      complexityScore: assessments.complexityScore,
+      riskLevel: assessments.riskLevel,
+      timelineEstimate: assessments.timelineEstimate,
       score: assessments.score,
-      completedAt: assessments.completedAt
+      completedAt: assessments.completedAt,
+      createdAt: assessments.createdAt
     }).from(assessments)
       .innerJoin(projects, eq(assessments.id, projects.assessmentId))
       .where(eq(projects.id, projectId))
       .orderBy(desc(assessments.completedAt))
       .limit(1);
     return result[0] || undefined;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users)
+      .orderBy(desc(users.createdAt));
+  }
+
+  async getAllAssessmentsWithUsers(): Promise<any[]> {
+    return await db.select({
+      id: assessments.id,
+      userId: assessments.userId,
+      responses: assessments.responses,
+      recommendation: assessments.recommendation,
+      recommendedStrategy: assessments.recommendedStrategy,
+      complexityScore: assessments.complexityScore,
+      riskLevel: assessments.riskLevel,
+      timelineEstimate: assessments.timelineEstimate,
+      score: assessments.score,
+      completedAt: assessments.completedAt,
+      createdAt: assessments.createdAt,
+      user: {
+        id: users.id,
+        fullName: users.fullName,
+        companyName: users.companyName,
+        email: users.email,
+        createdAt: users.createdAt
+      }
+    }).from(assessments)
+      .innerJoin(users, eq(assessments.userId, users.id))
+      .orderBy(desc(assessments.completedAt));
+  }
+
+  async getAllProjectsWithUsers(): Promise<any[]> {
+    return await db.select({
+      id: projects.id,
+      userId: projects.userId,
+      assessmentId: projects.assessmentId,
+      name: projects.name,
+      strategy: projects.strategy,
+      status: projects.status,
+      buildCycleDuration: projects.buildCycleDuration,
+      cooldownCycleDuration: projects.cooldownCycleDuration,
+      currentCycle: projects.currentCycle,
+      cyclePhase: projects.cyclePhase,
+      createdAt: projects.createdAt,
+      updatedAt: projects.updatedAt,
+      user: {
+        id: users.id,
+        fullName: users.fullName,
+        companyName: users.companyName,
+        email: users.email
+      }
+    }).from(projects)
+      .innerJoin(users, eq(projects.userId, users.id))
+      .orderBy(desc(projects.createdAt));
   }
 }
 

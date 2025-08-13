@@ -11,7 +11,7 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   fullName: text("full_name"),
   companyName: text("company_name"),
-  role: text("role").notNull().default("user"),
+  role: text("role").notNull().default("user"), // user, manager, admin
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
 });
 
@@ -20,8 +20,13 @@ export const assessments = pgTable("assessments", {
   userId: uuid("user_id").references(() => users.id).notNull(),
   responses: jsonb("responses").notNull(),
   recommendation: text("recommendation"),
+  recommendedStrategy: text("recommended_strategy"), // greenfield, brownfield, hybrid
+  complexityScore: integer("complexity_score"),
+  riskLevel: text("risk_level"), // low, medium, high
+  timelineEstimate: text("timeline_estimate"), // 6-12 months, 12-18 months, etc.
   score: integer("score"),
   completedAt: timestamp("completed_at").notNull().default(sql`now()`),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
 });
 
 export const projects = pgTable("projects", {
