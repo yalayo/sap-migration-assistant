@@ -11,6 +11,7 @@ import { ProjectSettingsModal } from "@/components/project/project-settings-moda
 import { ProjectCreationModal } from "@/components/project/project-creation-modal";
 import { ScopeList } from "@/components/project/scope-list";
 import { ExportModal } from "@/components/project/export-modal";
+import PitchDetailsModal from "@/components/pitch/pitch-details-modal";
 import { 
   Plus, 
   Lightbulb, 
@@ -31,7 +32,9 @@ export default function DashboardPage() {
   const [showProjectSettings, setShowProjectSettings] = useState(false);
   const [showProjectCreationModal, setShowProjectCreationModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [showPitchDetails, setShowPitchDetails] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [selectedPitch, setSelectedPitch] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<"projects" | "overview" | "scopes" | "pitches">("projects");
 
   // Debug logging
@@ -507,7 +510,14 @@ export default function DashboardPage() {
                             {pitch.businessValue}
                           </Badge>
                         </div>
-                        <Button variant="link" className="text-blue-600 hover:text-blue-700">
+                        <Button 
+                          variant="link" 
+                          className="text-blue-600 hover:text-blue-700"
+                          onClick={() => {
+                            setSelectedPitch(pitch);
+                            setShowPitchDetails(true);
+                          }}
+                        >
                           View Details →
                         </Button>
                       </div>
@@ -545,6 +555,16 @@ export default function DashboardPage() {
             onOpenChange={setShowExportModal}
             project={selectedProject || activeProject}
           />
+
+          {selectedPitch && (
+            <PitchDetailsModal
+              open={showPitchDetails}
+              onOpenChange={setShowPitchDetails}
+              pitch={selectedPitch}
+              project={activeProject}
+              canManage={true}
+            />
+          )}
         </>
       )}
     </div>

@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Plus, TrendingUp, Clock, Users, Target, ArrowLeft } from 'lucide-react';
 import { HillChart } from '@/components/shape-up/hill-chart';
 import { InteractiveHillChart } from '@/components/shape-up/interactive-hill-chart';
-import { BettingTable } from '@/components/shape-up/betting-table';
+import BettingTable from '@/components/shape-up/betting-table';
 import { PitchCreationModal } from '@/components/shape-up/pitch-creation-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { useToast } from '@/hooks/use-toast';
