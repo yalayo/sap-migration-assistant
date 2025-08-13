@@ -9,6 +9,7 @@ import { HillChart } from "@/components/project/hill-chart";
 import { ProjectSettingsModal } from "@/components/project/project-settings-modal";
 import { ProjectCreationModal } from "@/components/project/project-creation-modal";
 import { ScopeList } from "@/components/project/scope-list";
+import { ExportModal } from "@/components/project/export-modal";
 import { 
   Plus, 
   Lightbulb, 
@@ -18,7 +19,8 @@ import {
   TrendingUp,
   ArrowRight,
   Settings,
-  Target
+  Target,
+  Download
 } from "lucide-react";
 import { Project, Pitch, WorkPackage } from "@shared/schema";
 
@@ -26,7 +28,7 @@ export default function DashboardPage() {
   const [showPitchModal, setShowPitchModal] = useState(false);
   const [showProjectSettings, setShowProjectSettings] = useState(false);
   const [showProjectCreationModal, setShowProjectCreationModal] = useState(false);
-  console.log("Dashboard showProjectCreationModal state:", showProjectCreationModal);
+  const [showExportModal, setShowExportModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<"projects" | "overview" | "scopes" | "pitches">("projects");
 
@@ -72,10 +74,7 @@ export default function DashboardPage() {
             <h2 className="text-2xl font-bold text-slate-900 mb-4">Welcome to Your Migration Hub</h2>
             <p className="text-slate-600 mb-8">Start your S/4HANA transformation journey by creating your first migration project</p>
             <Button 
-              onClick={() => {
-                console.log("Create Your First Project button clicked");
-                setShowProjectCreationModal(true);
-              }}
+              onClick={() => setShowProjectCreationModal(true)}
               className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -105,6 +104,18 @@ export default function DashboardPage() {
             </p>
           </div>
           <div className="flex gap-3">
+            {activeProject && (
+              <Button 
+                variant="outline"
+                onClick={() => {
+                  setSelectedProject(activeProject);
+                  setShowExportModal(true);
+                }}
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Export Report
+              </Button>
+            )}
             <Button 
               onClick={() => setShowProjectCreationModal(true)}
               className="bg-blue-600 hover:bg-blue-700 text-white"
@@ -177,6 +188,16 @@ export default function DashboardPage() {
                           }}
                         >
                           View Details
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedProject(project);
+                            setShowExportModal(true);
+                          }}
+                        >
+                          <Download className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="outline"
@@ -512,6 +533,12 @@ export default function DashboardPage() {
             open={showProjectSettings}
             onOpenChange={setShowProjectSettings}
             project={activeProject}
+          />
+          
+          <ExportModal
+            open={showExportModal}
+            onOpenChange={setShowExportModal}
+            project={selectedProject}
           />
         </>
       )}

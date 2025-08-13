@@ -33,7 +33,6 @@ interface ProjectCreationModalProps {
 }
 
 export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModalProps) {
-  console.log("ProjectCreationModal rendered with open:", open);
   const { toast } = useToast();
   
   const form = useForm<ProjectFormData>({
@@ -79,13 +78,10 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
     createProjectMutation.mutate(data);
   };
 
-  console.log("About to render Dialog with open:", open);
-  
-  // Temporary test: force modal to be visible
-  const isOpen = true; // Force modal to always show for testing
+
   
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Create New Migration Project</DialogTitle>

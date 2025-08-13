@@ -65,7 +65,12 @@ export interface IStorage {
   getWorkPackage(id: string): Promise<WorkPackage | undefined>;
   getPitchWorkPackages(pitchId: string): Promise<WorkPackage[]>;
   getScopeWorkPackages(scopeId: string): Promise<WorkPackage[]>;
+  getProjectWorkPackages(projectId: string): Promise<WorkPackage[]>;
   updateWorkPackage(id: string, updates: Partial<WorkPackage>): Promise<WorkPackage>;
+  deleteWorkPackage(id: string): Promise<void>;
+  
+  // Assessment helper methods
+  getProjectAssessment(projectId: string): Promise<Assessment | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -242,6 +247,46 @@ export class DatabaseStorage implements IStorage {
       .where(eq(workPackages.id, id))
       .returning();
     return workPackage;
+  }
+
+  async getProjectWorkPackages(projectId: string): Promise<WorkPackage[]> {
+    const result = await db.select({
+      id: workPackages.id,
+      name: workPackages.name,
+      description: workPackages.description,
+      pitchId: workPackages.pitchId,
+      scopeId: workPackages.scopeId,
+      phase: workPackages.phase,
+      position: workPackages.position,
+      isStuck: workPackages.isStuck,
+      assignee: workPackages.assignee,
+      createdAt: workPackages.createdAt,
+      updatedAt: workPackages.updatedAt
+    }).from(workPackages)
+      .innerJoin(scopes, eq(workPackages.scopeId, scopes.id))
+      .where(eq(scopes.projectId, projectId))
+      .orderBy(workPackages.position);
+    return result;
+  }
+
+  async deleteWorkPackage(id: string): Promise<void> {
+    await db.delete(workPackages).where(eq(workPackages.id, id));
+  }
+
+  async getProjectAssessment(projectId: string): Promise<Assessment | undefined> {
+    const result = await db.select({
+      id: assessments.id,
+      userId: assessments.userId,
+      responses: assessments.responses,
+      recommendation: assessments.recommendation,
+      score: assessments.score,
+      completedAt: assessments.completedAt
+    }).from(assessments)
+      .innerJoin(projects, eq(assessments.id, projects.assessmentId))
+      .where(eq(projects.id, projectId))
+      .orderBy(desc(assessments.completedAt))
+      .limit(1);
+    return result[0] || undefined;
   }
 }
 
