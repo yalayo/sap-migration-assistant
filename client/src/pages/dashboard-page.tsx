@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { PitchModal } from "@/components/project/pitch-modal";
 import { HillChart } from "@/components/project/hill-chart";
 import { ProjectSettingsModal } from "@/components/project/project-settings-modal";
+import { ProjectCreationModal } from "@/components/project/project-creation-modal";
 import { ScopeList } from "@/components/project/scope-list";
 import { 
   Plus, 
@@ -24,13 +25,15 @@ import { Project, Pitch, WorkPackage } from "@shared/schema";
 export default function DashboardPage() {
   const [showPitchModal, setShowPitchModal] = useState(false);
   const [showProjectSettings, setShowProjectSettings] = useState(false);
-  const [activeTab, setActiveTab] = useState<"overview" | "scopes" | "pitches">("overview");
+  const [showProjectCreationModal, setShowProjectCreationModal] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<"projects" | "overview" | "scopes" | "pitches">("projects");
 
   const { data: projects = [], isLoading: projectsLoading } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
   });
 
-  const activeProject = projects.find(p => p.status === "active") || projects[0];
+  const activeProject = selectedProject || projects.find(p => p.status === "active") || projects[0];
 
   const { data: pitches = [], isLoading: pitchesLoading } = useQuery<Pitch[]>({
     queryKey: ["/api/projects", activeProject?.id, "pitches"],
@@ -58,17 +61,31 @@ export default function DashboardPage() {
     );
   }
 
-  if (!activeProject) {
+  // If no projects exist, show welcome screen with project creation
+  if (projects.length === 0) {
     return (
       <div className="min-h-screen bg-slate-50">
         <Navbar />
         <div className="flex items-center justify-center py-16">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-slate-900 mb-4">Welcome to Your Migration Hub</h2>
-            <p className="text-slate-600 mb-8">Complete an assessment to start your first project</p>
-            <Button onClick={() => window.location.href = "/assessment"}>
-              Start Assessment
-            </Button>
+            <p className="text-slate-600 mb-8">Start your S/4HANA transformation journey by creating your first migration project</p>
+            <div className="space-y-4">
+              <Button 
+                onClick={() => window.location.href = "/assessment"}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                Complete Assessment & Create Project
+              </Button>
+              <div className="text-sm text-slate-500">
+                or <button 
+                  onClick={() => setShowProjectCreationModal(true)}
+                  className="text-blue-600 hover:text-blue-700 underline"
+                >
+                  create a project manually
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -87,28 +104,18 @@ export default function DashboardPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900">{activeProject.name}</h1>
+            <h1 className="text-3xl font-bold text-slate-900">Migration Dashboard</h1>
             <p className="text-slate-600 mt-1">
-              {activeProject.strategy.charAt(0).toUpperCase() + activeProject.strategy.slice(1)} approach • 
-              Status: {activeProject.status.charAt(0).toUpperCase() + activeProject.status.slice(1)} •
-              Cycle #{activeProject.currentCycle || 1} ({activeProject.cyclePhase || "planning"})
+              Manage your S/4HANA transformation projects and track progress
             </p>
           </div>
           <div className="flex gap-3">
             <Button 
-              variant="outline"
-              onClick={() => setShowProjectSettings(true)}
-              className="border-slate-300"
-            >
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </Button>
-            <Button 
-              onClick={() => setShowPitchModal(true)}
+              onClick={() => setShowProjectCreationModal(true)}
               className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               <Plus className="mr-2 h-4 w-4" />
-              Create New Pitch
+              Create New Project
             </Button>
           </div>
         </div>
@@ -117,9 +124,12 @@ export default function DashboardPage() {
         <div className="border-b border-slate-200 mb-8">
           <nav className="-mb-px flex space-x-8">
             {[
-              { id: "overview", label: "Overview", icon: TrendingUp },
-              { id: "scopes", label: "Scopes", icon: Target },
-              { id: "pitches", label: "Pitches", icon: Lightbulb },
+              { id: "projects", label: "Projects", icon: Target },
+              ...(activeProject ? [
+                { id: "overview", label: "Overview", icon: TrendingUp },
+                { id: "scopes", label: "Scopes", icon: Target },
+                { id: "pitches", label: "Pitches", icon: Lightbulb },
+              ] : [])
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -139,8 +149,86 @@ export default function DashboardPage() {
           </nav>
         </div>
 
+        {/* Projects Tab */}
+        {activeTab === "projects" && (
+          <div className="space-y-6">
+            <div className="grid gap-6">
+              {projects.map((project) => (
+                <Card key={project.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-3">
+                          <CardTitle className="text-xl text-slate-900">{project.name}</CardTitle>
+                          <Badge 
+                            variant={
+                              project.status === "active" ? "default" :
+                              project.status === "completed" ? "secondary" :
+                              "outline"
+                            }
+                          >
+                            {project.status.toUpperCase()}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-slate-600">{project.description}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedProject(project);
+                            setActiveTab("overview");
+                          }}
+                        >
+                          View Details
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedProject(project);
+                            setShowProjectSettings(true);
+                          }}
+                        >
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                      <div>
+                        <span className="font-medium text-slate-700">Strategy:</span>
+                        <div className="text-slate-600 capitalize">{project.strategy}</div>
+                      </div>
+                      <div>
+                        <span className="font-medium text-slate-700">Cycle:</span>
+                        <div className="text-slate-600">#{project.currentCycle || 1} ({project.cyclePhase || "planning"})</div>
+                      </div>
+                      <div>
+                        <span className="font-medium text-slate-700">Build Duration:</span>
+                        <div className="text-slate-600">{project.buildCycleDuration || 6} weeks</div>
+                      </div>
+                      <div>
+                        <span className="font-medium text-slate-700">Cooldown:</span>
+                        <div className="text-slate-600">{project.cooldownCycleDuration || 2} weeks</div>
+                      </div>
+                    </div>
+                    
+                    <div className="text-xs text-slate-500">
+                      Created: {new Date(project.createdAt).toLocaleDateString()}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Project Stats - shown on overview tab */}
-        {activeTab === "overview" && (
+        {activeTab === "overview" && activeProject && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
@@ -205,7 +293,7 @@ export default function DashboardPage() {
         )}
 
         {/* Tab Content */}
-        {activeTab === "overview" && (
+        {activeTab === "overview" && activeProject && (
           <>
             {/* Current Cycle Overview */}
             {activePitch && (
@@ -317,12 +405,12 @@ export default function DashboardPage() {
         )}
 
         {/* Scopes Tab */}
-        {activeTab === "scopes" && (
+        {activeTab === "scopes" && activeProject && (
           <ScopeList project={activeProject} />
         )}
 
         {/* Pitches Tab */}
-        {activeTab === "pitches" && (
+        {activeTab === "pitches" && activeProject && (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-semibold text-slate-900">All Pitches</h3>
@@ -412,17 +500,26 @@ export default function DashboardPage() {
       </div>
 
       {/* Modals */}
-      <PitchModal 
-        isOpen={showPitchModal} 
-        onClose={() => setShowPitchModal(false)}
-        projectId={activeProject.id}
+      <ProjectCreationModal
+        open={showProjectCreationModal}
+        onOpenChange={setShowProjectCreationModal}
       />
       
-      <ProjectSettingsModal
-        open={showProjectSettings}
-        onOpenChange={setShowProjectSettings}
-        project={activeProject}
-      />
+      {activeProject && (
+        <>
+          <PitchModal 
+            isOpen={showPitchModal} 
+            onClose={() => setShowPitchModal(false)}
+            projectId={activeProject.id}
+          />
+          
+          <ProjectSettingsModal
+            open={showProjectSettings}
+            onOpenChange={setShowProjectSettings}
+            project={activeProject}
+          />
+        </>
+      )}
     </div>
   );
 }
