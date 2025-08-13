@@ -401,6 +401,26 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Scope work packages routes
+  app.get("/api/scopes/:scopeId/work-packages", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) return res.sendStatus(401);
+      
+      const scope = await storage.getScope(req.params.scopeId);
+      if (!scope) return res.sendStatus(404);
+      
+      const project = await storage.getProject(scope.projectId);
+      if (!project || project.userId !== req.user!.id) {
+        return res.sendStatus(404);
+      }
+      
+      const workPackages = await storage.getScopeWorkPackages(req.params.scopeId);
+      res.json(workPackages);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

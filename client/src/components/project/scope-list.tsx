@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { Target, Plus, Edit, Calendar, CheckCircle } from "lucide-react";
 import { Project, Scope } from "@shared/schema";
 import { ScopeModal } from "./scope-modal";
+import { ScopeWorkPackagesSection } from "./scope-work-packages-section";
 
 interface ScopeListProps {
   project: Project;
@@ -148,6 +149,9 @@ export function ScopeList({ project }: ScopeListProps) {
                 </div>
 
                 <Separator />
+                
+                {/* Work Packages Section */}
+                <ScopeWorkPackagesSection scope={scope} />
 
                 {/* Metadata */}
                 <div className="flex items-center gap-4 text-xs text-slate-500">

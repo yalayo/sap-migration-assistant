@@ -64,6 +64,7 @@ export interface IStorage {
   createWorkPackage(insertWorkPackage: InsertWorkPackage): Promise<WorkPackage>;
   getWorkPackage(id: string): Promise<WorkPackage | undefined>;
   getPitchWorkPackages(pitchId: string): Promise<WorkPackage[]>;
+  getScopeWorkPackages(scopeId: string): Promise<WorkPackage[]>;
   updateWorkPackage(id: string, updates: Partial<WorkPackage>): Promise<WorkPackage>;
 }
 
@@ -225,6 +226,12 @@ export class DatabaseStorage implements IStorage {
   async getPitchWorkPackages(pitchId: string): Promise<WorkPackage[]> {
     return await db.select().from(workPackages)
       .where(eq(workPackages.pitchId, pitchId))
+      .orderBy(workPackages.position);
+  }
+
+  async getScopeWorkPackages(scopeId: string): Promise<WorkPackage[]> {
+    return await db.select().from(workPackages)
+      .where(eq(workPackages.scopeId, scopeId))
       .orderBy(workPackages.position);
   }
 

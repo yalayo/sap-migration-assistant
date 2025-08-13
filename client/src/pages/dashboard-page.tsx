@@ -71,11 +71,7 @@ export default function DashboardPage() {
             <h2 className="text-2xl font-bold text-slate-900 mb-4">Welcome to Your Migration Hub</h2>
             <p className="text-slate-600 mb-8">Start your S/4HANA transformation journey by creating your first migration project</p>
             <Button 
-              onClick={() => {
-                console.log("Create project button clicked, current state:", showProjectCreationModal);
-                setShowProjectCreationModal(true);
-                console.log("State should now be true");
-              }}
+              onClick={() => setShowProjectCreationModal(true)}
               className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -495,7 +491,6 @@ export default function DashboardPage() {
       </div>
 
       {/* Modals */}
-      {console.log("Rendering ProjectCreationModal with state:", showProjectCreationModal)}
       <ProjectCreationModal
         open={showProjectCreationModal}
         onOpenChange={setShowProjectCreationModal}

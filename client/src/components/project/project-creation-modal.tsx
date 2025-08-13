@@ -33,7 +33,6 @@ interface ProjectCreationModalProps {
 }
 
 export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModalProps) {
-  console.log("ProjectCreationModal rendered with open:", open);
   const { toast } = useToast();
   
   const form = useForm<ProjectFormData>({
