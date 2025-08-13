@@ -34,12 +34,25 @@ export function setupAuth(app: Express) {
     resave: false,
     saveUninitialized: false,
     store: storage.sessionStore,
+    cookie: {
+      secure: false, // Set to true in production with HTTPS
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24, // 24 hours
+    }
   };
 
   app.set("trust proxy", 1);
   app.use(session(sessionSettings));
   app.use(passport.initialize());
   app.use(passport.session());
+
+  // Debug middleware
+  app.use((req, res, next) => {
+    console.log('Session ID:', req.sessionID);
+    console.log('User:', req.user);
+    console.log('Is authenticated:', req.isAuthenticated?.());
+    next();
+  });
 
   passport.use(
     new LocalStrategy(async (username, password, done) => {

@@ -20,8 +20,10 @@ import { eq, desc } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
+import createMemoryStore from "memorystore";
 
 const PostgresSessionStore = connectPg(session);
+const MemoryStore = createMemoryStore(session);
 
 export interface IStorage {
   sessionStore: session.Store;
@@ -60,10 +62,16 @@ export class DatabaseStorage implements IStorage {
   sessionStore: session.Store;
 
   constructor() {
-    this.sessionStore = new PostgresSessionStore({ 
-      pool, 
-      createTableIfMissing: true 
+    // Temporarily use memory store for debugging
+    this.sessionStore = new MemoryStore({
+      checkPeriod: 86400000, // 24 hours
     });
+    
+    // PostgreSQL session store (commented out for debugging)
+    // this.sessionStore = new PostgresSessionStore({ 
+    //   pool, 
+    //   createTableIfMissing: true 
+    // });
   }
 
   async getUser(id: string): Promise<User | undefined> {
