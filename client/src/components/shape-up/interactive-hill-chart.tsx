@@ -37,6 +37,7 @@ export function InteractiveHillChart({
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isCreatingScope, setIsCreatingScope] = useState(false);
   const [newPackageName, setNewPackageName] = useState('');
   const [newPackageDesc, setNewPackageDesc] = useState('');
 
@@ -148,11 +149,20 @@ export function InteractiveHillChart({
   // Handle adding new work package or scope
   const handleAddPackage = () => {
     if (newPackageName.trim()) {
-      if (showScopeCreation && onAddScope) {
-        onAddScope(newPackageName.trim(), newPackageDesc.trim() || undefined);
-      } else if (onAddWorkPackage) {
+      // Always call the appropriate handler based on what button was clicked
+      if (onAddWorkPackage) {
         onAddWorkPackage(newPackageName.trim(), newPackageDesc.trim() || undefined);
       }
+      setNewPackageName('');
+      setNewPackageDesc('');
+      setShowAddForm(false);
+    }
+  };
+
+  // Handle adding new scope
+  const handleAddScopeAction = () => {
+    if (newPackageName.trim() && onAddScope) {
+      onAddScope(newPackageName.trim(), newPackageDesc.trim() || undefined);
       setNewPackageName('');
       setNewPackageDesc('');
       setShowAddForm(false);
@@ -176,7 +186,10 @@ export function InteractiveHillChart({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setShowAddForm(true)}
+                onClick={() => {
+                  setIsCreatingScope(false);
+                  setShowAddForm(true);
+                }}
                 disabled={showAddForm}
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -187,7 +200,10 @@ export function InteractiveHillChart({
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setShowAddForm(true)}
+                onClick={() => {
+                  setIsCreatingScope(true);
+                  setShowAddForm(true);
+                }}
                 disabled={showAddForm}
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -203,7 +219,7 @@ export function InteractiveHillChart({
           <div className="p-4 bg-slate-50 rounded-lg border space-y-3">
             <input
               type="text"
-              placeholder={showScopeCreation ? "Scope name..." : "Work package name..."}
+              placeholder={isCreatingScope ? "Scope name..." : "Work package name..."}
               value={newPackageName}
               onChange={(e) => setNewPackageName(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -216,12 +232,17 @@ export function InteractiveHillChart({
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 h-20 resize-none"
             />
             <div className="flex gap-2">
-              <Button size="sm" onClick={handleAddPackage} disabled={!newPackageName.trim()}>
+              <Button 
+                size="sm" 
+                onClick={isCreatingScope ? handleAddScopeAction : handleAddPackage} 
+                disabled={!newPackageName.trim()}
+              >
                 <Save className="h-4 w-4 mr-2" />
-                {showScopeCreation ? "Add Scope" : "Add Work Package"}
+                {isCreatingScope ? "Add Scope" : "Add Work Package"}
               </Button>
               <Button size="sm" variant="outline" onClick={() => {
                 setShowAddForm(false);
+                setIsCreatingScope(false);
                 setNewPackageName('');
                 setNewPackageDesc('');
               }}>
