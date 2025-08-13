@@ -26,6 +26,7 @@ export default function DashboardPage() {
   const [showPitchModal, setShowPitchModal] = useState(false);
   const [showProjectSettings, setShowProjectSettings] = useState(false);
   const [showProjectCreationModal, setShowProjectCreationModal] = useState(false);
+  console.log("Dashboard showProjectCreationModal state:", showProjectCreationModal);
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<"projects" | "overview" | "scopes" | "pitches">("projects");
 
@@ -71,7 +72,10 @@ export default function DashboardPage() {
             <h2 className="text-2xl font-bold text-slate-900 mb-4">Welcome to Your Migration Hub</h2>
             <p className="text-slate-600 mb-8">Start your S/4HANA transformation journey by creating your first migration project</p>
             <Button 
-              onClick={() => setShowProjectCreationModal(true)}
+              onClick={() => {
+                console.log("Create Your First Project button clicked");
+                setShowProjectCreationModal(true);
+              }}
               className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               <Plus className="mr-2 h-4 w-4" />
