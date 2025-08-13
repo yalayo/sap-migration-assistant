@@ -120,7 +120,7 @@ export default function ShapeUpPage() {
 
   // Fetch work packages for hill charts
   const { data: workPackages = [], isLoading: workPackagesLoading } = useQuery({
-    queryKey: ['/api/work-packages', projectId],
+    queryKey: ['/api/projects', projectId, 'work-packages'],
     queryFn: getQueryFn(),
     enabled: !!projectId,
   });
@@ -185,7 +185,7 @@ export default function ShapeUpPage() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/work-packages', projectId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/projects', projectId, 'work-packages'] });
     },
     onError: (error: Error) => {
       toast({
@@ -209,7 +209,7 @@ export default function ShapeUpPage() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/work-packages', projectId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/projects', projectId, 'work-packages'] });
       toast({
         title: 'Success',
         description: 'Work package created successfully!',
@@ -219,6 +219,43 @@ export default function ShapeUpPage() {
       toast({
         title: 'Error',
         description: `Failed to create work package: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+
+  // Create scope mutation (for adding project-level scopes)
+  const createScopeMutation = useMutation({
+    mutationFn: async ({ name, description, boundaries, keyObjectives, successCriteria, constraints }: {
+      name: string;
+      description?: string;
+      boundaries?: string;
+      keyObjectives?: string[];
+      successCriteria?: string;
+      constraints?: string;
+    }) => {
+      const response = await apiRequest('POST', '/api/scopes', {
+        projectId,
+        name,
+        description,
+        boundaries,
+        keyObjectives,
+        successCriteria,
+        constraints,
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/projects', projectId, 'scopes'] });
+      toast({
+        title: 'Success',
+        description: 'Scope created successfully!',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to create scope: ${error.message}`,
         variant: 'destructive',
       });
     },
@@ -238,6 +275,17 @@ export default function ShapeUpPage() {
 
   const handleAddWorkPackage = (pitchId: string) => (name: string, description?: string) => {
     createWorkPackageMutation.mutate({ pitchId, name, description });
+  };
+
+  const handleAddScope = (name: string, description?: string) => {
+    createScopeMutation.mutate({ 
+      name, 
+      description,
+      boundaries: 'TBD',
+      keyObjectives: [],
+      successCriteria: 'TBD',
+      constraints: 'TBD'
+    });
   };
 
   if (projectLoading) {
@@ -327,7 +375,9 @@ export default function ShapeUpPage() {
                       workPackages={pitchWorkPackages}
                       onUpdatePosition={handleUpdateWorkPackagePosition}
                       onAddWorkPackage={handleAddWorkPackage(pitch.id)}
+                      onAddScope={handleAddScope}
                       pitchTitle={pitch.title}
+                      showScopeCreation={true}
                     />
                   );
                 })

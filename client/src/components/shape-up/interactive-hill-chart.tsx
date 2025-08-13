@@ -18,16 +18,20 @@ interface InteractiveHillChartProps {
   workPackages: WorkPackage[];
   onUpdatePosition: (workPackageId: string, position: number, phase: 'uphill' | 'downhill') => void;
   onAddWorkPackage?: (name: string, description?: string) => void;
+  onAddScope?: (name: string, description?: string) => void;
   pitchTitle?: string;
   readOnly?: boolean;
+  showScopeCreation?: boolean;
 }
 
 export function InteractiveHillChart({ 
   workPackages, 
   onUpdatePosition, 
   onAddWorkPackage,
+  onAddScope,
   pitchTitle = "Work Packages",
-  readOnly = false 
+  readOnly = false,
+  showScopeCreation = false
 }: InteractiveHillChartProps) {
   const svgRef = useRef<SVGSVGElement>(null);
   const [draggedItem, setDraggedItem] = useState<string | null>(null);
@@ -141,10 +145,14 @@ export function InteractiveHillChart({
     }
   }, [draggedItem, handleMouseMove, handleMouseUp]);
 
-  // Handle adding new work package
+  // Handle adding new work package or scope
   const handleAddPackage = () => {
-    if (newPackageName.trim() && onAddWorkPackage) {
-      onAddWorkPackage(newPackageName.trim(), newPackageDesc.trim() || undefined);
+    if (newPackageName.trim()) {
+      if (showScopeCreation && onAddScope) {
+        onAddScope(newPackageName.trim(), newPackageDesc.trim() || undefined);
+      } else if (onAddWorkPackage) {
+        onAddWorkPackage(newPackageName.trim(), newPackageDesc.trim() || undefined);
+      }
       setNewPackageName('');
       setNewPackageDesc('');
       setShowAddForm(false);
@@ -163,17 +171,30 @@ export function InteractiveHillChart({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">{pitchTitle}</CardTitle>
-          {!readOnly && onAddWorkPackage && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowAddForm(true)}
-              disabled={showAddForm}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Scope
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {!readOnly && onAddWorkPackage && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAddForm(true)}
+                disabled={showAddForm}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Work Package
+              </Button>
+            )}
+            {!readOnly && showScopeCreation && onAddScope && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAddForm(true)}
+                disabled={showAddForm}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Project Scope
+              </Button>
+            )}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -182,7 +203,7 @@ export function InteractiveHillChart({
           <div className="p-4 bg-slate-50 rounded-lg border space-y-3">
             <input
               type="text"
-              placeholder="Work package name..."
+              placeholder={showScopeCreation ? "Scope name..." : "Work package name..."}
               value={newPackageName}
               onChange={(e) => setNewPackageName(e.target.value)}
               className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -197,7 +218,7 @@ export function InteractiveHillChart({
             <div className="flex gap-2">
               <Button size="sm" onClick={handleAddPackage} disabled={!newPackageName.trim()}>
                 <Save className="h-4 w-4 mr-2" />
-                Add Scope
+                {showScopeCreation ? "Add Scope" : "Add Work Package"}
               </Button>
               <Button size="sm" variant="outline" onClick={() => {
                 setShowAddForm(false);
