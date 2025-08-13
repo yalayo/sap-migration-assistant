@@ -107,22 +107,25 @@ export default function ShapeUpPage() {
   // Fetch project details
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ['/api/projects', projectId],
-    queryFn: getQueryFn(),
     enabled: !!projectId,
   });
 
   // Fetch pitches for this project
   const { data: pitches = [], isLoading: pitchesLoading } = useQuery({
-    queryKey: ['/api/pitches', projectId],
-    queryFn: getQueryFn(),
-    enabled: !!projectId,
+    queryKey: [`/api/projects/${projectId}/pitches`],
+    enabled: !!projectId && !!project,
   });
 
   // Fetch work packages for hill charts
   const { data: workPackages = [], isLoading: workPackagesLoading } = useQuery({
-    queryKey: ['/api/projects', projectId, 'work-packages'],
-    queryFn: getQueryFn(),
-    enabled: !!projectId,
+    queryKey: [`/api/projects/${projectId}/work-packages`],
+    enabled: !!projectId && !!project,
+  });
+
+  // Fetch project scopes
+  const { data: scopes = [], isLoading: scopesLoading } = useQuery({
+    queryKey: [`/api/projects/${projectId}/scopes`],
+    enabled: !!projectId && !!project,
   });
 
   // Create new pitch mutation
@@ -135,7 +138,7 @@ export default function ShapeUpPage() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/pitches', projectId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/pitches`] });
       toast({
         title: 'Success',
         description: 'Pitch created successfully!',
@@ -160,7 +163,7 @@ export default function ShapeUpPage() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/pitches', projectId] });
+      queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/pitches`] });
       toast({
         title: 'Success',
         description: 'Pitch status updated successfully!',
@@ -185,7 +188,7 @@ export default function ShapeUpPage() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/projects', projectId, 'work-packages'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/work-packages`] });
     },
     onError: (error: Error) => {
       toast({
@@ -209,7 +212,7 @@ export default function ShapeUpPage() {
       return response.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/projects', projectId, 'work-packages'] });
+      queryClient.invalidateQueries({ queryKey: [`/api/projects/${projectId}/work-packages`] });
       toast({
         title: 'Success',
         description: 'Work package created successfully!',

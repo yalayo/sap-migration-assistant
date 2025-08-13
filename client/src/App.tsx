@@ -25,6 +25,7 @@ function Router() {
       <Route path="/resource-planning/:strategy" component={ResourcePlanningPage} />
       <ProtectedRoute path="/dashboard" component={DashboardPage} />
       <ProtectedRoute path="/management" component={ManagementDashboardPage} />
+      <ProtectedRoute path="/shape-up" component={ShapeUpPage} />
       <ProtectedRoute path="/shape-up/:projectId" component={ShapeUpPage} />
       <Route component={NotFound} />
     </Switch>
