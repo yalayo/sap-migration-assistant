@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Plus, TrendingUp, Clock, Users, Target, ArrowLeft } from 'lucide-react';
 import { HillChart } from '@/components/shape-up/hill-chart';
+import { InteractiveHillChart } from '@/components/shape-up/interactive-hill-chart';
 import { BettingTable } from '@/components/shape-up/betting-table';
 import { PitchCreationModal } from '@/components/shape-up/pitch-creation-modal';
 import { useAuth } from '@/hooks/use-auth';
@@ -195,6 +196,34 @@ export default function ShapeUpPage() {
     },
   });
 
+  // Create work package mutation (for adding new scopes to hill chart)
+  const createWorkPackageMutation = useMutation({
+    mutationFn: async ({ pitchId, name, description }: { pitchId: string; name: string; description?: string }) => {
+      const response = await apiRequest('POST', '/api/work-packages', {
+        pitchId,
+        name,
+        description,
+        position: 10, // Start at beginning of uphill
+        phase: 'uphill',
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/work-packages', projectId] });
+      toast({
+        title: 'Success',
+        description: 'Work package created successfully!',
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: 'Error',
+        description: `Failed to create work package: ${error.message}`,
+        variant: 'destructive',
+      });
+    },
+  });
+
   const handleCreatePitch = (data: any) => {
     createPitchMutation.mutate(data);
   };
@@ -205,6 +234,10 @@ export default function ShapeUpPage() {
 
   const handleUpdateWorkPackagePosition = (workPackageId: string, position: number, phase: 'uphill' | 'downhill') => {
     updateWorkPackageMutation.mutate({ workPackageId, position, phase });
+  };
+
+  const handleAddWorkPackage = (pitchId: string) => (name: string, description?: string) => {
+    createWorkPackageMutation.mutate({ pitchId, name, description });
   };
 
   if (projectLoading) {
@@ -289,10 +322,11 @@ export default function ShapeUpPage() {
                 activePitches.map((pitch: any) => {
                   const pitchWorkPackages = workPackages.filter((wp: any) => wp.pitchId === pitch.id);
                   return (
-                    <HillChart
+                    <InteractiveHillChart
                       key={pitch.id}
                       workPackages={pitchWorkPackages}
                       onUpdatePosition={handleUpdateWorkPackagePosition}
+                      onAddWorkPackage={handleAddWorkPackage(pitch.id)}
                       pitchTitle={pitch.title}
                     />
                   );

@@ -330,7 +330,8 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  app.put("/api/work-packages/:id", async (req, res, next) => {
+  // Update work package position (for hill chart dragging)
+  app.patch("/api/work-packages/:id", async (req, res, next) => {
     try {
       if (!req.isAuthenticated()) return res.sendStatus(401);
       
@@ -346,16 +347,37 @@ export function registerRoutes(app: Express): Server {
       }
       
       const updates = z.object({
-        name: z.string().optional(),
-        description: z.string().optional(),
-        position: z.number().optional(),
-        phase: z.string().optional(),
+        position: z.number().min(0).max(100).optional(),
+        phase: z.enum(['uphill', 'downhill']).optional(),
         isStuck: z.boolean().optional(),
         assignee: z.string().optional(),
       }).parse(req.body);
       
       const updatedWorkPackage = await storage.updateWorkPackage(req.params.id, updates);
       res.json(updatedWorkPackage);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Delete work package
+  app.delete("/api/work-packages/:id", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) return res.sendStatus(401);
+      
+      const workPackage = await storage.getWorkPackage(req.params.id);
+      if (!workPackage) return res.sendStatus(404);
+      
+      const pitch = await storage.getPitch(workPackage.pitchId);
+      if (!pitch) return res.sendStatus(404);
+      
+      const project = await storage.getProject(pitch.projectId);
+      if (!project || project.userId !== req.user!.id) {
+        return res.sendStatus(403);
+      }
+      
+      await storage.deleteWorkPackage(req.params.id);
+      res.sendStatus(204);
     } catch (error) {
       next(error);
     }
