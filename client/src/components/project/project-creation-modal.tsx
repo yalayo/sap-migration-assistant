@@ -83,12 +83,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
 
 
   
-  if (!open) {
-    console.log('Modal not open, returning null');
-    return null;
-  }
-
-  console.log('Modal is open, rendering dialog');
+  console.log('ProjectCreationModal render - open:', open, 'typeof open:', typeof open);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
