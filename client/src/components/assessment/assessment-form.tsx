@@ -105,8 +105,95 @@ export function AssessmentForm() {
 
   const progressPercentage = (currentStep / TOTAL_STEPS) * 100;
 
+  const validateCurrentStep = (): boolean => {
+    switch (currentStep) {
+      case 1:
+        // System Landscape step - radio button has default, modules are optional
+        return true;
+      case 2:
+        // Strategic Intent step - radio button has default, but combobox is required
+        if (!assessmentData.customCode) {
+          toast({
+            title: "Please complete all fields",
+            description: "Please select your custom code preference before continuing.",
+            variant: "destructive",
+          });
+          return false;
+        }
+        return true;
+      case 3:
+        // Data Assessment step - radio button has default, but combobox is required
+        if (!assessmentData.dataVolume) {
+          toast({
+            title: "Please complete all fields", 
+            description: "Please select your data volume before continuing.",
+            variant: "destructive",
+          });
+          return false;
+        }
+        return true;
+      case 4:
+        // Change Management step - radio button has default, but combobox is required
+        if (!assessmentData.changeMaturity) {
+          toast({
+            title: "Please complete all fields",
+            description: "Please select your change management maturity level before continuing.",
+            variant: "destructive",
+          });
+          return false;
+        }
+        return true;
+      case 5:
+        // Timeline & Budget step - both comboboxes are required
+        if (!assessmentData.timeline || !assessmentData.budget) {
+          toast({
+            title: "Please complete all fields",
+            description: "Please select both timeline and budget before continuing.",
+            variant: "destructive",
+          });
+          return false;
+        }
+        return true;
+      case 6:
+        // Organization Details step - all comboboxes are required, regions are optional
+        if (!assessmentData.orgSize || !assessmentData.industry) {
+          toast({
+            title: "Please complete all fields",
+            description: "Please select organization size and industry before continuing.",
+            variant: "destructive",
+          });
+          return false;
+        }
+        return true;
+      case 7:
+        // Contact Information step - validate mandatory fields
+        const contact = assessmentData.contact;
+        if (!contact?.fullName || !contact?.email || !contact?.companyName) {
+          toast({
+            title: "Please complete required fields",
+            description: "Full name, email, and company name are required.",
+            variant: "destructive",
+          });
+          return false;
+        }
+        // Basic email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(contact.email)) {
+          toast({
+            title: "Invalid email address",
+            description: "Please enter a valid email address.",
+            variant: "destructive",
+          });
+          return false;
+        }
+        return true;
+      default:
+        return true;
+    }
+  };
+
   const nextStep = () => {
-    if (currentStep < TOTAL_STEPS) {
+    if (validateCurrentStep() && currentStep < TOTAL_STEPS) {
       setCurrentStep(currentStep + 1);
     }
   };
@@ -123,6 +210,11 @@ export function AssessmentForm() {
   };
 
   const submitAssessment = () => {
+    // Final validation before submission
+    if (!validateCurrentStep()) {
+      return;
+    }
+
     const recommendation = assessmentEngine.generateRecommendation(assessmentData);
     const score = assessmentEngine.calculateScore(assessmentData);
     
@@ -240,10 +332,10 @@ export function AssessmentForm() {
                   
                   <div>
                     <Label className="text-base font-medium text-slate-700 mb-3 block">
-                      How critical is preserving existing custom code vs. adopting standard S/4HANA functionalities?
+                      How critical is preserving existing custom code vs. adopting standard S/4HANA functionalities? <span className="text-red-500">*</span>
                     </Label>
                     <Select value={assessmentData.customCode} onValueChange={(value) => updateAssessmentData("customCode", value)}>
-                      <SelectTrigger>
+                      <SelectTrigger className={!assessmentData.customCode ? "border-red-300" : ""}>
                         <SelectValue placeholder="Select preference..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -288,10 +380,10 @@ export function AssessmentForm() {
                   
                   <div>
                     <Label className="text-base font-medium text-slate-700 mb-3 block">
-                      Estimated data volume for migration
+                      Estimated data volume for migration <span className="text-red-500">*</span>
                     </Label>
                     <Select value={assessmentData.dataVolume} onValueChange={(value) => updateAssessmentData("dataVolume", value)}>
-                      <SelectTrigger>
+                      <SelectTrigger className={!assessmentData.dataVolume ? "border-red-300" : ""}>
                         <SelectValue placeholder="Select data volume..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -336,10 +428,10 @@ export function AssessmentForm() {
                   
                   <div>
                     <Label className="text-base font-medium text-slate-700 mb-3 block">
-                      Current change management maturity
+                      Current change management maturity <span className="text-red-500">*</span>
                     </Label>
                     <Select value={assessmentData.changeMaturity} onValueChange={(value) => updateAssessmentData("changeMaturity", value)}>
-                      <SelectTrigger>
+                      <SelectTrigger className={!assessmentData.changeMaturity ? "border-red-300" : ""}>
                         <SelectValue placeholder="Select maturity level..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -360,10 +452,10 @@ export function AssessmentForm() {
                 <div className="space-y-6">
                   <div>
                     <Label className="text-base font-medium text-slate-700 mb-3 block">
-                      What is your target timeline for the migration project?
+                      What is your target timeline for the migration project? <span className="text-red-500">*</span>
                     </Label>
                     <Select value={assessmentData.timeline} onValueChange={(value) => updateAssessmentData("timeline", value)}>
-                      <SelectTrigger>
+                      <SelectTrigger className={!assessmentData.timeline ? "border-red-300" : ""}>
                         <SelectValue placeholder="Select timeline..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -378,10 +470,10 @@ export function AssessmentForm() {
                   
                   <div>
                     <Label className="text-base font-medium text-slate-700 mb-3 block">
-                      Budget range for the migration project
+                      Budget range for the migration project <span className="text-red-500">*</span>
                     </Label>
                     <Select value={assessmentData.budget} onValueChange={(value) => updateAssessmentData("budget", value)}>
-                      <SelectTrigger>
+                      <SelectTrigger className={!assessmentData.budget ? "border-red-300" : ""}>
                         <SelectValue placeholder="Select budget range..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -403,10 +495,10 @@ export function AssessmentForm() {
                 <div className="space-y-6">
                   <div>
                     <Label className="text-base font-medium text-slate-700 mb-3 block">
-                      Organization size (number of employees)
+                      Organization size (number of employees) <span className="text-red-500">*</span>
                     </Label>
                     <Select value={assessmentData.orgSize} onValueChange={(value) => updateAssessmentData("orgSize", value)}>
-                      <SelectTrigger>
+                      <SelectTrigger className={!assessmentData.orgSize ? "border-red-300" : ""}>
                         <SelectValue placeholder="Select size..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -420,10 +512,10 @@ export function AssessmentForm() {
                   
                   <div>
                     <Label className="text-base font-medium text-slate-700 mb-3 block">
-                      Primary industry sector
+                      Primary industry sector <span className="text-red-500">*</span>
                     </Label>
                     <Select value={assessmentData.industry} onValueChange={(value) => updateAssessmentData("industry", value)}>
-                      <SelectTrigger>
+                      <SelectTrigger className={!assessmentData.industry ? "border-red-300" : ""}>
                         <SelectValue placeholder="Select industry..." />
                       </SelectTrigger>
                       <SelectContent>
@@ -489,7 +581,9 @@ export function AssessmentForm() {
                     </Label>
                     <input
                       type="text"
-                      className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        !assessmentData.contact?.fullName ? "border-red-300" : "border-slate-300"
+                      }`}
                       placeholder="Enter your full name"
                       value={assessmentData.contact?.fullName || ""}
                       onChange={(e) => updateAssessmentData("contact", { 
@@ -505,7 +599,9 @@ export function AssessmentForm() {
                     </Label>
                     <input
                       type="email"
-                      className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        !assessmentData.contact?.email ? "border-red-300" : "border-slate-300"
+                      }`}
                       placeholder="Enter your email"
                       value={assessmentData.contact?.email || ""}
                       onChange={(e) => updateAssessmentData("contact", { 
@@ -521,7 +617,9 @@ export function AssessmentForm() {
                     </Label>
                     <input
                       type="text"
-                      className="w-full px-3 py-2 border border-slate-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                        !assessmentData.contact?.companyName ? "border-red-300" : "border-slate-300"
+                      }`}
                       placeholder="Enter your company name"
                       value={assessmentData.contact?.companyName || ""}
                       onChange={(e) => updateAssessmentData("contact", { 
