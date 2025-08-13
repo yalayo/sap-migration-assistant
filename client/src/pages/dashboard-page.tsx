@@ -32,6 +32,9 @@ export default function DashboardPage() {
   const [selectedProject, setSelectedProject] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<"projects" | "overview" | "scopes" | "pitches">("projects");
 
+  // Debug logging
+  console.log('Dashboard render - showProjectCreationModal:', showProjectCreationModal);
+
   const { data: projects = [], isLoading: projectsLoading } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
   });
@@ -74,7 +77,10 @@ export default function DashboardPage() {
             <h2 className="text-2xl font-bold text-slate-900 mb-4">Welcome to Your Migration Hub</h2>
             <p className="text-slate-600 mb-8">Start your S/4HANA transformation journey by creating your first migration project</p>
             <Button 
-              onClick={() => setShowProjectCreationModal(true)}
+              onClick={() => {
+                console.log('Button clicked, setting modal to true');
+                setShowProjectCreationModal(true);
+              }}
               className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -516,6 +522,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Modals */}
+      {console.log('About to render ProjectCreationModal with open:', showProjectCreationModal)}
       <ProjectCreationModal
         open={showProjectCreationModal}
         onOpenChange={setShowProjectCreationModal}

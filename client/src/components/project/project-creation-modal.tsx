@@ -35,6 +35,9 @@ interface ProjectCreationModalProps {
 export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModalProps) {
   const { toast } = useToast();
   
+  // Debug logging
+  console.log('ProjectCreationModal render - open:', open);
+  
   const form = useForm<ProjectFormData>({
     resolver: zodResolver(projectFormSchema),
     defaultValues: {
@@ -82,7 +85,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] z-50">
         <DialogHeader>
           <DialogTitle>Create New Migration Project</DialogTitle>
         </DialogHeader>
