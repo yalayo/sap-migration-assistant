@@ -71,7 +71,10 @@ export default function DashboardPage() {
             <h2 className="text-2xl font-bold text-slate-900 mb-4">Welcome to Your Migration Hub</h2>
             <p className="text-slate-600 mb-8">Start your S/4HANA transformation journey by creating your first migration project</p>
             <Button 
-              onClick={() => setShowProjectCreationModal(true)}
+              onClick={() => {
+                console.log("Create project button clicked");
+                setShowProjectCreationModal(true);
+              }}
               className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               <Plus className="mr-2 h-4 w-4" />
@@ -161,7 +164,7 @@ export default function DashboardPage() {
                             {project.status.toUpperCase()}
                           </Badge>
                         </div>
-                        <p className="text-sm text-slate-600">{project.description}</p>
+                        <p className="text-sm text-slate-600">S/4HANA Migration Project</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <Button
