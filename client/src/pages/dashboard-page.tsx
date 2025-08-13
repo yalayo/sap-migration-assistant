@@ -188,6 +188,15 @@ export default function DashboardPage() {
                         <Button
                           variant="outline"
                           size="sm"
+                          onClick={() => window.location.href = `/shape-up/${project.id}`}
+                          className="bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100"
+                        >
+                          <Target className="mr-1 h-4 w-4" />
+                          Shape Up
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => {
                             setSelectedProject(project);
                             setActiveTab("overview");

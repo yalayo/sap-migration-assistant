@@ -313,6 +313,23 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Get work packages for a project (needed by Shape Up page)
+  app.get("/api/work-packages/:projectId", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) return res.sendStatus(401);
+      
+      const project = await storage.getProject(req.params.projectId);
+      if (!project || project.userId !== req.user!.id) {
+        return res.sendStatus(404);
+      }
+      
+      const workPackages = await storage.getProjectWorkPackages(req.params.projectId);
+      res.json(workPackages);
+    } catch (error) {
+      next(error);
+    }
+  });
+
   app.put("/api/work-packages/:id", async (req, res, next) => {
     try {
       if (!req.isAuthenticated()) return res.sendStatus(401);
