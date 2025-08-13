@@ -83,9 +83,16 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
 
 
   
+  if (!open) {
+    console.log('Modal not open, returning null');
+    return null;
+  }
+
+  console.log('Modal is open, rendering dialog');
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] z-50">
+      <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Create New Migration Project</DialogTitle>
         </DialogHeader>
