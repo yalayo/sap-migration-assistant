@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { PitchModal } from "@/components/project/pitch-modal";
 import { HillChart } from "@/components/project/hill-chart";
+import { ProjectSettingsModal } from "@/components/project/project-settings-modal";
+import { ScopeList } from "@/components/project/scope-list";
 import { 
   Plus, 
   Lightbulb, 
@@ -13,12 +15,16 @@ import {
   Clock, 
   Users, 
   TrendingUp,
-  ArrowRight
+  ArrowRight,
+  Settings,
+  Target
 } from "lucide-react";
 import { Project, Pitch, WorkPackage } from "@shared/schema";
 
 export default function DashboardPage() {
   const [showPitchModal, setShowPitchModal] = useState(false);
+  const [showProjectSettings, setShowProjectSettings] = useState(false);
+  const [activeTab, setActiveTab] = useState<"overview" | "scopes" | "pitches">("overview");
 
   const { data: projects = [], isLoading: projectsLoading } = useQuery<Project[]>({
     queryKey: ["/api/projects"],
@@ -84,20 +90,58 @@ export default function DashboardPage() {
             <h1 className="text-3xl font-bold text-slate-900">{activeProject.name}</h1>
             <p className="text-slate-600 mt-1">
               {activeProject.strategy.charAt(0).toUpperCase() + activeProject.strategy.slice(1)} approach • 
-              Status: {activeProject.status.charAt(0).toUpperCase() + activeProject.status.slice(1)}
+              Status: {activeProject.status.charAt(0).toUpperCase() + activeProject.status.slice(1)} •
+              Cycle #{activeProject.currentCycle || 1} ({activeProject.cyclePhase || "planning"})
             </p>
           </div>
-          <Button 
-            onClick={() => setShowPitchModal(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Create New Pitch
-          </Button>
+          <div className="flex gap-3">
+            <Button 
+              variant="outline"
+              onClick={() => setShowProjectSettings(true)}
+              className="border-slate-300"
+            >
+              <Settings className="mr-2 h-4 w-4" />
+              Settings
+            </Button>
+            <Button 
+              onClick={() => setShowPitchModal(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Create New Pitch
+            </Button>
+          </div>
         </div>
 
-        {/* Project Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        {/* Tab Navigation */}
+        <div className="border-b border-slate-200 mb-8">
+          <nav className="-mb-px flex space-x-8">
+            {[
+              { id: "overview", label: "Overview", icon: TrendingUp },
+              { id: "scopes", label: "Scopes", icon: Target },
+              { id: "pitches", label: "Pitches", icon: Lightbulb },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`group inline-flex items-center py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === tab.id
+                    ? "border-blue-500 text-blue-600"
+                    : "border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300"
+                }`}
+              >
+                <tab.icon className={`mr-2 h-5 w-5 ${
+                  activeTab === tab.id ? "text-blue-500" : "text-slate-400 group-hover:text-slate-500"
+                }`} />
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        {/* Project Stats - shown on overview tab */}
+        {activeTab === "overview" && (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center">
@@ -157,10 +201,14 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
-        </div>
+          </div>
+        )}
 
-        {/* Current Cycle Overview */}
-        {activePitch && (
+        {/* Tab Content */}
+        {activeTab === "overview" && (
+          <>
+            {/* Current Cycle Overview */}
+            {activePitch && (
           <Card className="mb-8 shadow-lg">
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -190,88 +238,190 @@ export default function DashboardPage() {
           </Card>
         )}
 
-        {/* Betting Table */}
-        <Card className="shadow-lg">
-          <CardHeader>
+            {/* Betting Table */}
+            <Card className="shadow-lg">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-2xl">Betting Table</CardTitle>
+                  <Button variant="link" className="text-blue-600 hover:text-blue-700">
+                    View All Pitches
+                    <ArrowRight className="ml-1 h-4 w-4" />
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {pitches.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-slate-600 mb-4">No pitches created yet</p>
+                    <Button onClick={() => setShowPitchModal(true)}>
+                      Create Your First Pitch
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {pitches.map((pitch) => (
+                      <div 
+                        key={pitch.id} 
+                        className={`border rounded-lg p-6 ${
+                          pitch.status === "active" ? "border-blue-200 bg-blue-50" :
+                          pitch.status === "completed" ? "border-green-200 bg-green-50" :
+                          "border-slate-200"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center">
+                            <Badge 
+                              variant={
+                                pitch.status === "active" ? "default" :
+                                pitch.status === "completed" ? "secondary" :
+                                "outline"
+                              }
+                              className="mr-3"
+                            >
+                              {pitch.status.toUpperCase()}
+                            </Badge>
+                            <h3 className="text-lg font-semibold text-slate-900">{pitch.title}</h3>
+                          </div>
+                          <span className="text-sm text-slate-600">{pitch.appetite} weeks • Cycle {pitch.cycle || 1}</span>
+                        </div>
+                        <p className="text-slate-700 mb-3">{pitch.problem}</p>
+                        <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center space-x-4">
+                            <span className="text-slate-600">
+                              Team: {pitch.teamMembers ? (pitch.teamMembers as string[]).join(", ") : "Unassigned"}
+                            </span>
+                            <span className="text-slate-600">•</span>
+                            <Badge 
+                              variant={
+                                pitch.status === "active" ? "default" :
+                                pitch.status === "completed" ? "secondary" :
+                                "outline"
+                              }
+                            >
+                              {pitch.status === "active" ? "On Track" : 
+                               pitch.status === "completed" ? "Delivered" : 
+                               "Ready to Bet"}
+                            </Badge>
+                          </div>
+                          <Button variant="link" className="text-blue-600 hover:text-blue-700">
+                            View Details →
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </>
+        )}
+
+        {/* Scopes Tab */}
+        {activeTab === "scopes" && (
+          <ScopeList project={activeProject} />
+        )}
+
+        {/* Pitches Tab */}
+        {activeTab === "pitches" && (
+          <div className="space-y-6">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-2xl">Betting Table</CardTitle>
-              <Button variant="link" className="text-blue-600 hover:text-blue-700">
-                View All Pitches
-                <ArrowRight className="ml-1 h-4 w-4" />
+              <h3 className="text-lg font-semibold text-slate-900">All Pitches</h3>
+              <Button 
+                onClick={() => setShowPitchModal(true)}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Create New Pitch
               </Button>
             </div>
-          </CardHeader>
-          <CardContent>
+            
             {pitches.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-slate-600 mb-4">No pitches created yet</p>
-                <Button onClick={() => setShowPitchModal(true)}>
-                  Create Your First Pitch
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {pitches.map((pitch) => (
-                  <div 
-                    key={pitch.id} 
-                    className={`border rounded-lg p-6 ${
-                      pitch.status === "active" ? "border-blue-200 bg-blue-50" :
-                      pitch.status === "completed" ? "border-green-200 bg-green-50" :
-                      "border-slate-200"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center">
-                        <Badge 
-                          variant={
-                            pitch.status === "active" ? "default" :
-                            pitch.status === "completed" ? "secondary" :
-                            "outline"
-                          }
-                          className="mr-3"
-                        >
-                          {pitch.status.toUpperCase()}
-                        </Badge>
-                        <h3 className="text-lg font-semibold text-slate-900">{pitch.title}</h3>
-                      </div>
-                      <span className="text-sm text-slate-600">{pitch.appetite} weeks • Cycle {pitch.cycle || 1}</span>
-                    </div>
-                    <p className="text-slate-700 mb-3">{pitch.problem}</p>
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center space-x-4">
-                        <span className="text-slate-600">
-                          Team: {pitch.teamMembers ? (pitch.teamMembers as string[]).join(", ") : "Unassigned"}
-                        </span>
-                        <span className="text-slate-600">•</span>
-                        <Badge 
-                          variant={
-                            pitch.status === "active" ? "default" :
-                            pitch.status === "completed" ? "secondary" :
-                            "outline"
-                          }
-                        >
-                          {pitch.status === "active" ? "On Track" : 
-                           pitch.status === "completed" ? "Delivered" : 
-                           "Ready to Bet"}
-                        </Badge>
-                      </div>
-                      <Button variant="link" className="text-blue-600 hover:text-blue-700">
-                        View Details →
+              <Card className="border-dashed border-2 border-slate-300">
+                <CardContent className="pt-8 pb-8">
+                  <div className="text-center space-y-4">
+                    <Lightbulb className="h-12 w-12 text-slate-400 mx-auto" />
+                    <div>
+                      <h4 className="text-lg font-medium text-slate-700 mb-2">
+                        No pitches created yet
+                      </h4>
+                      <p className="text-slate-500 mb-4">
+                        Create your first pitch to start shaping work for your S/4HANA migration project.
+                      </p>
+                      <Button 
+                        onClick={() => setShowPitchModal(true)}
+                        className="bg-blue-600 hover:bg-blue-700"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Create Your First Pitch
                       </Button>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4">
+                {pitches.map((pitch) => (
+                  <Card key={pitch.id} className="hover:shadow-md transition-shadow">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <Badge 
+                              variant={
+                                pitch.status === "active" ? "default" :
+                                pitch.status === "completed" ? "secondary" :
+                                "outline"
+                              }
+                            >
+                              {pitch.status.toUpperCase()}
+                            </Badge>
+                            <CardTitle className="text-lg text-slate-900">{pitch.title}</CardTitle>
+                          </div>
+                          <p className="text-sm text-slate-600">{pitch.problem}</p>
+                        </div>
+                        <div className="text-right text-sm text-slate-500">
+                          <div>{pitch.appetite} weeks</div>
+                          <div>Cycle {pitch.cycle || 1}</div>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    
+                    <CardContent className="space-y-3">
+                      <p className="text-slate-700">{pitch.solution}</p>
+                      
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-4">
+                          <span className="text-slate-600">
+                            Team: {pitch.teamMembers ? (pitch.teamMembers as string[]).join(", ") : "Unassigned"}
+                          </span>
+                          <Badge variant="outline">
+                            {pitch.businessValue}
+                          </Badge>
+                        </div>
+                        <Button variant="link" className="text-blue-600 hover:text-blue-700">
+                          View Details →
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        )}
       </div>
 
-      {/* Pitch Modal */}
+      {/* Modals */}
       <PitchModal 
         isOpen={showPitchModal} 
         onClose={() => setShowPitchModal(false)}
         projectId={activeProject.id}
+      />
+      
+      <ProjectSettingsModal
+        open={showProjectSettings}
+        onOpenChange={setShowProjectSettings}
+        project={activeProject}
       />
     </div>
   );

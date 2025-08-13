@@ -31,6 +31,11 @@ export const projects = pgTable("projects", {
   name: text("name").notNull(),
   strategy: text("strategy").notNull(), // greenfield, brownfield, hybrid
   status: text("status").notNull().default("planning"), // planning, active, completed
+  // Shape Up cycle configuration
+  buildCycleDuration: integer("build_cycle_duration").notNull().default(6), // weeks
+  cooldownCycleDuration: integer("cooldown_cycle_duration").notNull().default(2), // weeks
+  currentCycle: integer("current_cycle").notNull().default(0),
+  cyclePhase: text("cycle_phase").notNull().default("planning"), // planning, building, cooldown
   createdAt: timestamp("created_at").notNull().default(sql`now()`),
   updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
 });
@@ -52,9 +57,23 @@ export const pitches = pgTable("pitches", {
   updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
 });
 
+export const scopes = pgTable("scopes", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  projectId: uuid("project_id").references(() => projects.id).notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  boundaries: text("boundaries"), // What's in scope vs out of scope
+  keyObjectives: jsonb("key_objectives"), // Array of objectives
+  successCriteria: text("success_criteria"),
+  constraints: text("constraints"),
+  createdAt: timestamp("created_at").notNull().default(sql`now()`),
+  updatedAt: timestamp("updated_at").notNull().default(sql`now()`),
+});
+
 export const workPackages = pgTable("work_packages", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   pitchId: uuid("pitch_id").references(() => pitches.id).notNull(),
+  scopeId: uuid("scope_id").references(() => scopes.id),
   name: text("name").notNull(),
   description: text("description"),
   position: integer("position").notNull().default(0), // 0-100, position on hill chart
@@ -88,6 +107,15 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
     references: [assessments.id],
   }),
   pitches: many(pitches),
+  scopes: many(scopes),
+}));
+
+export const scopesRelations = relations(scopes, ({ one, many }) => ({
+  project: one(projects, {
+    fields: [scopes.projectId],
+    references: [projects.id],
+  }),
+  workPackages: many(workPackages),
 }));
 
 export const pitchesRelations = relations(pitches, ({ one, many }) => ({
@@ -102,6 +130,10 @@ export const workPackagesRelations = relations(workPackages, ({ one }) => ({
   pitch: one(pitches, {
     fields: [workPackages.pitchId],
     references: [pitches.id],
+  }),
+  scope: one(scopes, {
+    fields: [workPackages.scopeId],
+    references: [scopes.id],
   }),
 }));
 
@@ -132,6 +164,12 @@ export const insertPitchSchema = createInsertSchema(pitches).omit({
   updatedAt: true,
 });
 
+export const insertScopeSchema = createInsertSchema(scopes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const insertWorkPackageSchema = createInsertSchema(workPackages).omit({
   id: true,
   createdAt: true,
@@ -144,6 +182,8 @@ export type InsertAssessment = z.infer<typeof insertAssessmentSchema>;
 export type Assessment = typeof assessments.$inferSelect;
 export type InsertProject = z.infer<typeof insertProjectSchema>;
 export type Project = typeof projects.$inferSelect;
+export type InsertScope = z.infer<typeof insertScopeSchema>;
+export type Scope = typeof scopes.$inferSelect;
 export type InsertPitch = z.infer<typeof insertPitchSchema>;
 export type Pitch = typeof pitches.$inferSelect;
 export type InsertWorkPackage = z.infer<typeof insertWorkPackageSchema>;

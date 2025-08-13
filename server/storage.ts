@@ -4,6 +4,7 @@ import {
   projects, 
   pitches, 
   workPackages,
+  scopes,
   type User, 
   type InsertUser,
   type Assessment,
@@ -13,7 +14,9 @@ import {
   type Pitch,
   type InsertPitch,
   type WorkPackage,
-  type InsertWorkPackage
+  type InsertWorkPackage,
+  type Scope,
+  type InsertScope
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc } from "drizzle-orm";
@@ -50,6 +53,12 @@ export interface IStorage {
   getPitch(id: string): Promise<Pitch | undefined>;
   getProjectPitches(projectId: string): Promise<Pitch[]>;
   updatePitch(id: string, updates: Partial<Pitch>): Promise<Pitch>;
+  
+  // Scope methods
+  createScope(insertScope: InsertScope): Promise<Scope>;
+  getScope(id: string): Promise<Scope | undefined>;
+  getProjectScopes(projectId: string): Promise<Scope[]>;
+  updateScope(id: string, updates: Partial<Scope>): Promise<Scope>;
   
   // Work Package methods
   createWorkPackage(insertWorkPackage: InsertWorkPackage): Promise<WorkPackage>;
@@ -170,6 +179,34 @@ export class DatabaseStorage implements IStorage {
       .where(eq(pitches.id, id))
       .returning();
     return pitch;
+  }
+
+  async createScope(insertScope: InsertScope): Promise<Scope> {
+    const [scope] = await db
+      .insert(scopes)
+      .values(insertScope)
+      .returning();
+    return scope;
+  }
+
+  async getScope(id: string): Promise<Scope | undefined> {
+    const [scope] = await db.select().from(scopes).where(eq(scopes.id, id));
+    return scope || undefined;
+  }
+
+  async getProjectScopes(projectId: string): Promise<Scope[]> {
+    return await db.select().from(scopes)
+      .where(eq(scopes.projectId, projectId))
+      .orderBy(scopes.createdAt);
+  }
+
+  async updateScope(id: string, updates: Partial<Scope>): Promise<Scope> {
+    const [scope] = await db
+      .update(scopes)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(scopes.id, id))
+      .returning();
+    return scope;
   }
 
   async createWorkPackage(insertWorkPackage: InsertWorkPackage): Promise<WorkPackage> {

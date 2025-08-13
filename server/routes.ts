@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./storage";
-import { insertAssessmentSchema, insertProjectSchema, insertPitchSchema, insertWorkPackageSchema } from "@shared/schema";
+import { insertAssessmentSchema, insertProjectSchema, insertPitchSchema, insertWorkPackageSchema, insertScopeSchema } from "@shared/schema";
 import { z } from "zod";
 
 export function registerRoutes(app: Express): Server {
@@ -286,6 +286,70 @@ export function registerRoutes(app: Express): Server {
       
       const updatedWorkPackage = await storage.updateWorkPackage(req.params.id, updates);
       res.json(updatedWorkPackage);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  // Scope routes
+  app.post("/api/scopes", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) return res.sendStatus(401);
+      
+      const validatedData = insertScopeSchema.parse(req.body);
+      
+      // Verify user owns the project
+      const project = await storage.getProject(validatedData.projectId);
+      if (!project || project.userId !== req.user!.id) {
+        return res.sendStatus(403);
+      }
+      
+      const scope = await storage.createScope(validatedData);
+      res.status(201).json(scope);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get("/api/projects/:projectId/scopes", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) return res.sendStatus(401);
+      
+      const project = await storage.getProject(req.params.projectId);
+      if (!project || project.userId !== req.user!.id) {
+        return res.sendStatus(404);
+      }
+      
+      const scopes = await storage.getProjectScopes(req.params.projectId);
+      res.json(scopes);
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.put("/api/scopes/:id", async (req, res, next) => {
+    try {
+      if (!req.isAuthenticated()) return res.sendStatus(401);
+      
+      const scope = await storage.getScope(req.params.id);
+      if (!scope) return res.sendStatus(404);
+      
+      const project = await storage.getProject(scope.projectId);
+      if (!project || project.userId !== req.user!.id) {
+        return res.sendStatus(403);
+      }
+      
+      const updates = z.object({
+        name: z.string().optional(),
+        description: z.string().optional(),
+        boundaries: z.string().optional(),
+        keyObjectives: z.any().optional(),
+        successCriteria: z.string().optional(),
+        constraints: z.string().optional(),
+      }).parse(req.body);
+      
+      const updatedScope = await storage.updateScope(req.params.id, updates);
+      res.json(updatedScope);
     } catch (error) {
       next(error);
     }
