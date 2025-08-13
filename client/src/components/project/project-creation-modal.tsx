@@ -82,7 +82,7 @@ export function ProjectCreationModal({ open, onOpenChange }: ProjectCreationModa
   console.log("About to render Dialog with open:", open);
   
   // Temporary test: force modal to be visible
-  const isOpen = open || false; // Change to true to test modal rendering
+  const isOpen = true; // Force modal to always show for testing
   
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
