@@ -139,11 +139,18 @@ export function registerRoutes(app: Express): Server {
     try {
       if (!req.isAuthenticated()) return res.sendStatus(401);
       
+      console.log('Creating project for user:', req.user!.id);
+      console.log('Project data:', req.body);
+      
       const validatedData = insertProjectSchema.parse(req.body);
+      console.log('Validated data:', validatedData);
+      
       const project = await storage.createProject(req.user!.id, validatedData);
+      console.log('Created project:', project);
       
       res.status(201).json(project);
     } catch (error) {
+      console.error('Error creating project:', error);
       next(error);
     }
   });
