@@ -4,6 +4,7 @@ compatibility_flags = ["nodejs_compat"]
 
 [env.production]
 name = "migration-assistant-prod"
+account_id = "${ACCOUNT_ID}" 
 
 [[env.production.d1_databases]]
 binding = "DB"
