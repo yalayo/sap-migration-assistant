@@ -1,5 +1,5 @@
-import { createApp } from "./app";
-import { log } from "./vite";
+import { createApp } from "./app.js";
+import { log } from "./vite.js";
 
 // Create and start the development server
 (async () => {

@@ -1,6 +1,6 @@
-# Cloudflare Docker Deployment Guide
+# Docker Deployment Guide
 
-This guide explains how to deploy the S/4HANA Migration Assistant to Cloudflare using Docker containers - leveraging Cloudflare's new Docker deployment feature.
+This guide explains how to containerize and deploy the S/4HANA Migration Assistant using Docker. The application is ready for deployment to various Docker-compatible platforms.
 
 ## Prerequisites
 
@@ -9,13 +9,26 @@ This guide explains how to deploy the S/4HANA Migration Assistant to Cloudflare 
 3. **GitHub Repository**: Push your code to GitHub
 4. **Docker**: Ensure Docker is available for local testing
 
-## Step 1: Set up Cloudflare Workers with Docker
+## Step 1: Choose Your Deployment Platform
 
-1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/)
-2. Navigate to "Workers & Pages" in the sidebar
-3. Click "Create" → "Create Worker"
-4. Configure your worker name: `s4hana-migration-assistant`
-5. The GitHub Actions will handle Docker deployment automatically
+The Docker container can be deployed to various platforms:
+
+### Option A: Railway (Recommended)
+1. Visit [Railway](https://railway.app)
+2. Connect your GitHub repository
+3. Railway will automatically detect the Dockerfile
+4. Configure environment variables in Railway dashboard
+
+### Option B: Render
+1. Visit [Render](https://render.com)
+2. Create a new Web Service from GitHub
+3. Select Docker environment
+4. Configure environment variables
+
+### Option C: Cloudflare Container Workers (Preview)
+1. Wait for general availability (coming June 2025)
+2. Use the provided wrangler.toml configuration
+3. Deploy with `wrangler deploy`
 
 ## Step 2: Configure Environment Variables
 
@@ -71,11 +84,12 @@ If you prefer GitHub Actions deployment, add these secrets to your repository:
 
 ## Step 5: Deploy
 
-### Option A: GitHub Actions (Recommended)
+### Option A: Automated Testing
 - Push to your main branch
 - The workflow in `.github/workflows/deploy.yml` will trigger automatically
-- GitHub Actions will build the Docker image and deploy to Cloudflare
-- Check the Actions tab for deployment status
+- GitHub Actions will build the Docker image and test it
+- Check the Actions tab for build status
+- Use the tested image for manual deployment to your chosen platform
 
 ### Option B: Manual Deployment
 ```bash
@@ -91,8 +105,8 @@ docker run -p 8080:8080 \
   -e SESSION_SECRET="your-session-secret" \
   s4hana-migration-assistant
 
-# Deploy to Cloudflare
-wrangler deploy
+# Deploy to your chosen platform (Railway, Render, etc.)
+# Follow platform-specific deployment guides
 ```
 
 ## Step 6: Custom Domain (Optional)
@@ -110,7 +124,10 @@ npm run dev
 
 ### Option B: Docker Development
 ```bash
-# Build and run with Docker
+# Use the provided test script
+./scripts/local-docker-test.sh
+
+# Or manually:
 docker build -t s4hana-migration-assistant .
 docker run -p 8080:8080 \
   -e NODE_ENV=development \

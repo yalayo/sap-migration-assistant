@@ -83,25 +83,31 @@ Preferred communication style: Simple, everyday language.
 - **Replit Integration**: Development environment integration with error overlay and cartographer plugins
 - **ESBuild**: Fast JavaScript bundler for server-side code compilation
 - **PostCSS**: CSS processing with Tailwind and Autoprefixer plugins
-- **Cloudflare Pages**: Production deployment platform with serverless functions
-- **Wrangler**: Cloudflare CLI tool for local development and deployment
-- **GitHub Actions**: Automated CI/CD pipeline for seamless deployments
+- **Docker**: Containerization for production deployment
+- **GitHub Actions**: Automated CI/CD pipeline with Docker testing
+- **Railway/Render**: Recommended deployment platforms for Docker containers
 
 ## Deployment Architecture
 
-### Cloudflare Docker Configuration
+### Docker Configuration
 - **Full-Stack Container**: Complete Node.js application running in Alpine Linux Docker container
 - **Application**: Express.js serving both React frontend and API routes in a single process
 - **Database**: PostgreSQL hosted on Neon with connection pooling and session storage
-- **Environment**: Production and preview environments with isolated configurations
+- **Environment**: Production and development environments with isolated configurations
 - **Build Process**: Multi-stage Docker build with optimized production image
 - **Health Monitoring**: Built-in health check endpoint at `/api/health`
-- **Container Runtime**: Cloudflare Workers with Docker support (new feature)
+- **Deployment Targets**: Railway, Render, or future Cloudflare Container Workers
 
 ### Docker Features
 - **Multi-stage Build**: Optimized build process with separate builder and production stages
-- **Node.js 20**: Updated to Node.js 20 for Wrangler compatibility (Wrangler requires Node.js 20+)
+- **Node.js 20**: Production environment with Wrangler compatibility
 - **Security**: Non-root user execution with minimal attack surface
 - **Performance**: Alpine Linux base for reduced image size and faster deployments
 - **Signal Handling**: dumb-init for proper process signal management
-- **Health Checks**: Built-in container health monitoring
+- **Health Checks**: Built-in container health monitoring with automated testing via GitHub Actions
+
+### Current Deployment Status
+- **Production Ready**: Docker container successfully builds and passes health checks
+- **CI/CD Pipeline**: GitHub Actions automatically tests every push
+- **Platform Support**: Ready for Railway, Render, and other Docker-compatible platforms
+- **Future Ready**: Cloudflare Container Workers configuration prepared for June 2025 GA

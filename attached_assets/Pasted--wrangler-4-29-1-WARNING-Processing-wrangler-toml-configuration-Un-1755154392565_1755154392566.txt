@@ -1,0 +1,113 @@
+⛅️ wrangler 4.29.1
+───────────────────
+▲ [WARNING] Processing wrangler.toml configuration:
+
+    - Unexpected fields found in build field: "upload"
+    - Unexpected fields found in top-level field: "docker"
+
+
+▲ [WARNING] Multiple environments are defined in the Wrangler configuration file, but no target environment was specified for the deploy command.
+
+  To avoid unintentional changes to the wrong environment, it is recommended to explicitly specify the target environment using the `-e|--env` flag.
+  If your intention is to use the top-level environment of your configuration simply pass an empty string to the flag to target such environment. For example `--env=""`.
+
+
+[custom build] Running: npm run build
+[custom build] 
+[custom build] > rest-express@1.0.0 build
+[custom build] > vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist
+[custom build] 
+[custom build] 
+[custom build] vite v5.4.19 building for production...
+[custom build] 
+[custom build] transforming...
+[custom build] 
+[custom build] Browserslist: browsers data (caniuse-lite) is 10 months old. Please run:
+[custom build]   npx update-browserslist-db@latest
+[custom build]   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[custom build] 
+[custom build] ✓ 1866 modules transformed.
+[custom build] 
+[custom build] rendering chunks...
+[custom build] 
+[custom build] computing gzip size...
+[custom build] 
+[custom build] ../dist/public/index.html                   2.20 kB │ gzip:   0.86 kB
+[custom build] 
+[custom build] ../dist/public/assets/index-D_5dBVLL.css   74.41 kB │ gzip:  12.57 kB
+[custom build] ../dist/public/assets/index-Dze62WdA.js   677.43 kB │ gzip: 192.86 kB
+[custom build] 
+[custom build] 
+[custom build] (!) Some chunks are larger than 500 kB after minification. Consider:
+[custom build] - Using dynamic import() to code-split the application
+  If so, try adding `export default { ... }` in your entry-point.
+  See https://developers.cloudflare.com/workers/reference/migrate-to-module-workers/. [plugin cloudflare-internal-imports]
+  
+  
+
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    dist/index.js:973:24:
+      973 │       "@": path.resolve(import.meta.dirname, "client", "src"),
+          ╵                         ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    dist/index.js:974:30:
+      974 │       "@shared": path.resolve(import.meta.dirname, "shared"),
+          ╵                               ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    dist/index.js:975:30:
+      975 │ ...  "@assets": path.resolve(import.meta.dirname, "attached_assets")
+          ╵                              ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    dist/index.js:978:21:
+      978 │   root: path.resolve(import.meta.dirname, "client"),
+          ╵                      ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    dist/index.js:980:25:
+      980 │     outDir: path.resolve(import.meta.dirname, "dist/public"),
+          ╵                          ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    dist/index.js:1046:33:
+      1046 │   const distPath = path2.resolve(import.meta.dirname, "public");
+           ╵                                  ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+
+▲ [WARNING] The glob pattern require("../lightningcss.*.node") did not match any files [empty-glob]
+
+    node_modules/lightningcss/node/index.js:22:29:
+      22 │ ...dule.exports = require(`../lightningcss.${parts.join('-')}.node`);
+         ╵                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md
+🪵  Logs were written to "/home/runner/.config/.wrangler/logs/wrangler-2025-08-14_06-50-20_796.log"
+Error: Process completed with exit code 1.

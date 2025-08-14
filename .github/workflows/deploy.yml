@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare with Docker
+name: Build and Test Docker Container
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    name: Build and Deploy Docker Container
+    name: Build and Test Docker Container
 
     steps:
       - name: Checkout
@@ -35,11 +35,22 @@ jobs:
       - name: Build Docker image
         run: docker build -t s4hana-migration-assistant .
 
-      - name: Install Wrangler
-        run: npm install -g wrangler
+      - name: Test Docker container
+        run: |
+          docker run -d --name test-container -p 8080:8080 \
+            -e NODE_ENV=test \
+            -e SESSION_SECRET=test-secret \
+            s4hana-migration-assistant
+          sleep 15
+          curl -f http://localhost:8080/api/health || exit 1
+          docker stop test-container
+          docker rm test-container
 
-      - name: Deploy to Cloudflare Workers with Docker
-        run: wrangler deploy
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Docker deployment ready
+        run: |
+          echo "✅ Docker container built and tested successfully!"
+          echo "🚀 Ready for manual deployment to your preferred platform"
+          echo "📋 Available deployment options:"
+          echo "   - Cloudflare (when Container Workers are generally available)"
+          echo "   - Railway, Render, or other Docker-compatible platforms"
+          echo "   - Self-hosted Docker environment"
