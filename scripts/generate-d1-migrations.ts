@@ -9,7 +9,7 @@ async function generateMigrations() {
   try {
     console.log("🔄 Generating D1 database migrations...");
 
-    mkdirSync("migrations-d1", { recursive: true });
+    mkdirSync("migrations", { recursive: true });
 
     const { stdout, stderr } = await execAsync(
       "npx drizzle-kit generate --config=drizzle-d1.config.ts"
@@ -24,7 +24,7 @@ async function generateMigrations() {
     console.log("✅ D1 migrations generated successfully!");
 
     console.log("\n📝 Next steps:");
-    console.log("1. Review the generated migration files in ./migrations-d1/");
+    console.log("1. Review the generated migration files in ./migrations/");
     console.log("2. Apply migrations to your D1 database using wrangler:");
     console.log("   wrangler d1 migrations apply <DATABASE_NAME>");
     console.log("3. For local development, run:");
