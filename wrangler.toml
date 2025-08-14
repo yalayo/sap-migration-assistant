@@ -4,7 +4,6 @@ compatibility_flags = ["nodejs_compat"]
 
 [env.production]
 name = "migration-assistant-prod"
-migrations_dir = "migrations-d1"
 
 [[env.production.d1_databases]]
 binding = "DB"
@@ -21,7 +20,7 @@ class_name = "Backend"
 image = "./Dockerfile"
 
 [[env.production.migrations]]
-new_sqlite_classes = ["Backend"]
+directory = "migrations-d1"
 tag = "v1"
 
 [env.production.vars]
