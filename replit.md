@@ -89,9 +89,18 @@ Preferred communication style: Simple, everyday language.
 
 ## Deployment Architecture
 
-### Cloudflare Pages Configuration
-- **Static Assets**: React frontend served via Cloudflare's global CDN
-- **API Functions**: Express.js backend running on Cloudflare Pages Functions
-- **Database**: PostgreSQL hosted on Neon with connection pooling
+### Cloudflare Docker Configuration
+- **Full-Stack Container**: Complete Node.js application running in Alpine Linux Docker container
+- **Application**: Express.js serving both React frontend and API routes in a single process
+- **Database**: PostgreSQL hosted on Neon with connection pooling and session storage
 - **Environment**: Production and preview environments with isolated configurations
-- **Build Process**: Automated build pipeline using custom build scripts
+- **Build Process**: Multi-stage Docker build with optimized production image
+- **Health Monitoring**: Built-in health check endpoint at `/api/health`
+- **Container Runtime**: Cloudflare Workers with Docker support (new feature)
+
+### Docker Features
+- **Multi-stage Build**: Optimized build process with separate builder and production stages
+- **Security**: Non-root user execution with minimal attack surface
+- **Performance**: Alpine Linux base for reduced image size and faster deployments
+- **Signal Handling**: dumb-init for proper process signal management
+- **Health Checks**: Built-in container health monitoring

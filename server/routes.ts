@@ -33,6 +33,15 @@ function generateSecurePassword(): string {
 }
 
 export function registerRoutes(app: Express): Server {
+  // Health check endpoint for Docker
+  app.get("/api/health", (req, res) => {
+    res.status(200).json({ 
+      status: "healthy", 
+      timestamp: new Date().toISOString(),
+      version: process.env.npm_package_version || "1.0.0"
+    });
+  });
+
   setupAuth(app);
 
   // Assessment routes - allow anonymous submissions
