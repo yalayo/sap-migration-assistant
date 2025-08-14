@@ -83,3 +83,15 @@ Preferred communication style: Simple, everyday language.
 - **Replit Integration**: Development environment integration with error overlay and cartographer plugins
 - **ESBuild**: Fast JavaScript bundler for server-side code compilation
 - **PostCSS**: CSS processing with Tailwind and Autoprefixer plugins
+- **Cloudflare Pages**: Production deployment platform with serverless functions
+- **Wrangler**: Cloudflare CLI tool for local development and deployment
+- **GitHub Actions**: Automated CI/CD pipeline for seamless deployments
+
+## Deployment Architecture
+
+### Cloudflare Pages Configuration
+- **Static Assets**: React frontend served via Cloudflare's global CDN
+- **API Functions**: Express.js backend running on Cloudflare Pages Functions
+- **Database**: PostgreSQL hosted on Neon with connection pooling
+- **Environment**: Production and preview environments with isolated configurations
+- **Build Process**: Automated build pipeline using custom build scripts

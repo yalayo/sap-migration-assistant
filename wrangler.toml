@@ -1,0 +1,21 @@
+name = "s4hana-migration-assistant"
+compatibility_date = "2024-08-14"
+pages_build_output_dir = "dist/public"
+
+[vars]
+NODE_ENV = "production"
+
+[build]
+command = "node build-scripts/build-cloudflare.js"
+
+[build.environment_variables]
+NODE_VERSION = "18"
+
+# Uncomment and configure these for production
+# [env.production.vars]
+# DATABASE_URL = "your-production-neon-database-url"
+# SESSION_SECRET = "your-production-session-secret"
+
+# For development/preview
+[env.preview.vars]
+NODE_ENV = "development"
