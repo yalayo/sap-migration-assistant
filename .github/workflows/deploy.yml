@@ -24,6 +24,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Inject DATABASE_ID into wrangler.toml
+        run: |
+          sed -i "s|database_id = \".*\"|database_id = \"${{ secrets.DATABASE_ID }}\"|" wrangler.toml
+
+      - name: Deploy D1 Database Schema
+        run: |
+          npx wrangler d1 execute DB --file=./migrations/001_initial_schema.sql --remote --env=production
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
       - name: Build application
         run: npm run build
         env:
@@ -32,14 +42,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build Docker image
-        run: docker build -t s4hana-migration-assistant .
+      - name: Push container to Cloudflare
+        run: npx wrangler containers push --env=production
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
-      - name: Docker deployment ready
-        run: |
-          echo "✅ Docker container built and tested successfully!"
-          echo "🚀 Ready for manual deployment to your preferred platform"
-          echo "📋 Available deployment options:"
-          echo "   - Cloudflare (when Container Workers are generally available)"
-          echo "   - Railway, Render, or other Docker-compatible platforms"
-          echo "   - Self-hosted Docker environment"
+      - uses: cloudflare/wrangler-action@v3
+        name: Deploy to Cloudflare Workers
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: deploy --env=production
