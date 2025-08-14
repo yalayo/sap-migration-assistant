@@ -1,0 +1,25 @@
+name = "s4hana-migration-assistant"
+compatibility_date = "2024-08-14"
+main = "dist/cloudflare-worker.js"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "s4hana-migration-db"
+database_id = "" # Will be filled when you create the D1 database
+
+# Environment variables
+[vars]
+NODE_ENV = "production"
+DATABASE_TYPE = "d1"
+
+# Preview environment for staging
+[env.preview]
+[[env.preview.d1_databases]]
+binding = "DB"
+database_name = "s4hana-migration-db-preview"
+database_id = "" # Will be filled when you create the preview D1 database
+
+[env.preview.vars]
+NODE_ENV = "preview"
+DATABASE_TYPE = "d1"

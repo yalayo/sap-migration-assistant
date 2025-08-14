@@ -111,3 +111,11 @@ Preferred communication style: Simple, everyday language.
 - **CI/CD Pipeline**: GitHub Actions automatically tests every push
 - **Platform Support**: Ready for Railway, Render, and other Docker-compatible platforms
 - **Future Ready**: Cloudflare Container Workers configuration prepared for June 2025 GA
+- **D1 Migration Ready**: Complete SQLite schema and migration pipeline for Cloudflare D1 deployment
+
+### Database Migration Architecture
+- **Dual Database Support**: Maintains both PostgreSQL (current) and SQLite/D1 (future) schemas
+- **Schema Compatibility**: Converted PostgreSQL schema to SQLite format with proper type mappings
+- **Migration Pipeline**: Automated scripts for D1 database setup and deployment
+- **Local Development**: SQLite-based development environment for D1 compatibility testing
+- **Storage Abstraction**: Separate storage layers for PostgreSQL and D1 operations
