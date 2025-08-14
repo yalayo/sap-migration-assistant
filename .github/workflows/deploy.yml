@@ -34,7 +34,7 @@ jobs:
 
       - name: Deploy D1 Database Schema
         run: |
-          ls -l
+          ls -l migrations-d1
           npx wrangler d1 migrations apply migration-assistant-db --env=production
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
