@@ -1,14 +1,30 @@
-name = "s4hana-migration-assistant"
-compatibility_date = "2024-08-14"
+name = "migration-assistant"
+compatibility_date = "2025-06-23"
+compatibility_flags = ["nodejs_compat"]
 
-# For standard Docker deployment via GitHub Actions
-# The Docker container will run independently
+[env.production]
+name = "migration-assistant-prod"
 
-# Environment variables
-[vars]
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "migration-assistant-db"
+database_id = "${DATABASE_ID}"
+
+[env.production.durable_objects]
+bindings = [
+	{ name = "BACKEND", class_name = "Backend" }
+]
+
+[[env.production.containers]]
+class_name = "Backend"
+image = "./Dockerfile"
+
+[[env.production.migrations]]
+new_sqlite_classes = ["Backend"]
+tag = "v1"
+
+[env.production.vars]
 NODE_ENV = "production"
-PORT = "8080"
 
-# Uncomment and configure these for production deployment
-# DATABASE_URL = "your-production-neon-database-url"
-# SESSION_SECRET = "your-production-session-secret"
+[env.production.observability]
+enabled = true
