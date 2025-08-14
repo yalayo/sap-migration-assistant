@@ -1,10 +1,12 @@
 name = "migration-assistant"
+main = "server/index.ts"
 compatibility_date = "2025-06-23"
 compatibility_flags = ["nodejs_compat"]
 
 [env.production]
 name = "migration-assistant-prod"
-account_id = "${ACCOUNT_ID}" 
+account_id = "${ACCOUNT_ID}"
+main = "server/index.ts"
 
 [[env.production.d1_databases]]
 binding = "DB"
