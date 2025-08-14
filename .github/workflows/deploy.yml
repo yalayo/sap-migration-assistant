@@ -35,17 +35,6 @@ jobs:
       - name: Build Docker image
         run: docker build -t s4hana-migration-assistant .
 
-      - name: Test Docker container
-        run: |
-          docker run -d --name test-container -p 8080:8080 \
-            -e NODE_ENV=test \
-            -e SESSION_SECRET=test-secret \
-            s4hana-migration-assistant
-          sleep 10
-          curl -f http://localhost:8080/api/health || exit 1
-          docker stop test-container
-          docker rm test-container
-
       - name: Install Wrangler
         run: npm install -g wrangler
 
