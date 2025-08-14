@@ -7,6 +7,7 @@ compatibility_flags = ["nodejs_compat"]
 name = "migration-assistant-prod"
 account_id = "${ACCOUNT_ID}"
 main = "worker/index.ts"
+type = "esm"
 
 [[env.production.d1_databases]]
 binding = "DB"
