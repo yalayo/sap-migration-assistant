@@ -100,6 +100,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Docker Features
 - **Multi-stage Build**: Optimized build process with separate builder and production stages
+- **Node.js 20**: Updated to Node.js 20 for Wrangler compatibility (Wrangler requires Node.js 20+)
 - **Security**: Non-root user execution with minimal attack surface
 - **Performance**: Alpine Linux base for reduced image size and faster deployments
 - **Signal Handling**: dumb-init for proper process signal management

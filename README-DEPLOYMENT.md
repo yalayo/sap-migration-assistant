@@ -129,7 +129,7 @@ docker-compose up
 ### Common Issues
 
 1. **Build Fails**: 
-   - Check Node.js version (should be 18+)
+   - Check Node.js version (should be 20+ for Wrangler compatibility)
    - Ensure development dependencies are installed during Docker build
    - Verify `vite` and `esbuild` are available in the build stage
 
