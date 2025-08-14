@@ -2,6 +2,8 @@ name = "migration-assistant"
 compatibility_date = "2025-06-23"
 compatibility_flags = ["nodejs_compat"]
 
+migrations_dir = "migrations-d1"
+
 [env.production]
 name = "migration-assistant-prod"
 migrations_dir = "migrations-d1"
