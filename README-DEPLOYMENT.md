@@ -128,9 +128,20 @@ docker-compose up
 
 ### Common Issues
 
-1. **Build Fails**: Check Node.js version (should be 18+)
-2. **Database Connection**: Verify DATABASE_URL format
-3. **API Routes Not Working**: Ensure Functions are properly configured
+1. **Build Fails**: 
+   - Check Node.js version (should be 18+)
+   - Ensure development dependencies are installed during Docker build
+   - Verify `vite` and `esbuild` are available in the build stage
+
+2. **Database Connection**: 
+   - Verify DATABASE_URL format
+   - Check Neon database connectivity
+   - Ensure environment variables are properly set
+
+3. **Docker Build Issues**:
+   - "vite: not found" error: Fixed by installing dev dependencies during build
+   - Permission errors: Ensure proper user permissions in Dockerfile
+   - Health check failures: Verify `/api/health` endpoint is accessible
 
 ### Logs
 

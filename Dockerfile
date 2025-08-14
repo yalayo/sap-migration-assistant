@@ -7,14 +7,17 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
+# Install all dependencies (including dev dependencies needed for build)
+RUN npm ci
 
 # Copy source code
 COPY . .
 
 # Build the application
 RUN npm run build
+
+# Remove dev dependencies after build
+RUN npm prune --production && npm cache clean --force
 
 # Production stage
 FROM node:18-alpine AS production
@@ -33,6 +36,7 @@ RUN adduser -S app -u 1001
 COPY --from=builder --chown=app:nodejs /app/dist ./dist
 COPY --from=builder --chown=app:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=app:nodejs /app/package*.json ./
+COPY --from=builder --chown=app:nodejs /app/shared ./shared
 
 # Set environment variables
 ENV NODE_ENV=production
