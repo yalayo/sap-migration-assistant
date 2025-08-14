@@ -5,6 +5,9 @@ compatibility_flags = ["nodejs_compat"]
 [env.production]
 name = "migration-assistant-prod"
 
+[env.production]
+migrations_dir = "migrations-d1"
+
 [[env.production.d1_databases]]
 binding = "DB"
 database_name = "migration-assistant-db"
